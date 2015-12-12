@@ -274,8 +274,8 @@ sub render_inlines {
 sub render_link {
     my ($url, $text) = @_;
 
-    # is it a numeric id? if so, convert to title
     if ($url =~ /^(\d+)$/) {
+        # is it a numeric id? if so, convert to title
         if (my $title = get_title $1) {
             $text //= $title;
             return qq(<a href="$title.html" class="internal">$text</a>);
@@ -285,6 +285,7 @@ sub render_link {
             return qq(&#91;&#91;$url&#93;&#93;);
         }
     } elsif ($url =~ TITLE_PATTERN) {
+        # if it's a textual title, determine if it's broken or not
         $text //= $url;
         if (get_id $url) {
             return qq(<a href="$url.html" class="internal">$text</a>);
@@ -292,8 +293,27 @@ sub render_link {
             return qq(<a href="$url.html" class="internal broken">$text</a>);
         }
     } else {
+        # just output it
         $text //= $url;
         return qq(<a href="$url" class="external">$text</a>);
+    }
+}
+
+sub preprocess_link {
+    my ($url, $text) = @_;
+
+    # is it a named title?
+    if ($url =~ TITLE_PATTERN and my $id = get_id $url) {
+        # rewrite that
+        $text //= $url;
+        return qq([[$id|$text]]);
+    } else {
+        # pass through
+        if (defined $text) {
+            return qq([[$url|$text]]);
+        } else {
+            return qq([[$url]]);
+        }
     }
 }
 
@@ -307,6 +327,7 @@ sub preprocess_entry {
     # fix newlines
     $content =~ s/\r\n|\r/\n/g;
     my @links;
+    my @blocks;
 
     for (handle_blocks $content) {
         while (/\[\[(.+?)(\|.+?)?\]\]/g) {
@@ -314,10 +335,13 @@ sub preprocess_entry {
                 push @links, $id;
             }
         }
+        s/\[\[(.+?)\|(.+?)\]\]/preprocess_link($1, $2)/ge;
+        s/\[\[(.+?)\]\]/preprocess_link($1)/ge;
+        push @blocks, $_;
     }
 
     @links = uniq(@links);
-    return $content, \@links;
+    return join("\n", @blocks), \@links;
 }
 
 sub generate_partial {
@@ -330,7 +354,8 @@ sub generate_partial {
 sub render_entry {
     my ($content) = @_;
     my @output;
-    my @sstack = (0);
+    my @sstack; while ($#sstack < 1) { push @sstack, 0; }
+
     for (handle_blocks $content) {
         if (/^(={2,6})\s*(.*?)\s*(=*)\s*$/) {
             my $level = length $1;
@@ -339,8 +364,10 @@ sub render_entry {
             while ($#sstack >= $level) {
                 push @output, pop(@sstack);
             }
-            push @output, qq(<section>);
-            push @sstack, qq(</section>);
+            while ($#sstack < $level) {
+                push @sstack, qq(</section>);
+                push @output, qq(<section>);
+            }
             push @output, qq(<h$level id="$partial">
                 $text
                 <a class="partial" href="#$partial">#</a>
