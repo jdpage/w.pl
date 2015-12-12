@@ -1,14 +1,15 @@
+<header>
+    <h1>
+        <TMPL_IF NAME=ID>
+        Editing
+        <TMPL_ELSE>
+        Creating
+        </TMPL_IF>
+        <a href="<TMPL_VAR NAME=SLUG ESCAPE=HTML>.html">
+            <TMPL_VAR NAME=SLUG ESCAPE=HTML></a>
+    </h1>
+</header>
 <article>
-<h1>
-    <TMPL_IF NAME=ID>
-    Editing
-    <TMPL_ELSE>
-    Creating
-    </TMPL_IF>
-    <a href="<TMPL_VAR NAME=SLUG ESCAPE=HTML>.html">
-        <TMPL_VAR NAME=SLUG ESCAPE=HTML></a>
-</h1>
-
 <TMPL_LOOP NAME=ERRORS>
 <p class='error'>Error: <TMPL_VAR NAME=MESSAGE></p>
 </TMPL_LOOP>
