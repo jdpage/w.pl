@@ -83,7 +83,9 @@ sub put_entry {
 }
 
 sub get_all_pages {
-    my $pst = $db->prepare(q(select * from pages)) or die $db->errstr;
+    my $pst = $db->prepare(q(select * from pages order by pageid))
+        or die $db->errstr;
+    $pst->execute() or die $pst->errstr;
     my @pages;
     while (my $row = $pst->fetchrow_hashref) {
         push @pages, $row;
@@ -587,6 +589,7 @@ sub show_entry {
         $template->param(CONTENT => render_entry($page->{content}));
         $template->param(USERNAME => get_username($page->{editor}));
         $template->param(EDITED => render_time($page->{edited}));
+        $template->param(ID => $page->{pageid});
         show_page("200 OK", $page->{title}, $template->output);
     } else {
         print $q->redirect("$slug.edit");
@@ -607,6 +610,13 @@ sub show_recent {
     show_page("200 OK", "Recently edited pages", $template->output);
 }
 
+sub show_all {
+    print $q->header("text/plain; charset=utf-8");
+    for (get_all_pages) {
+        print $_->{pageid} . " " . $_->{title} . "\n";
+    }
+}
+
 sub dump_entry {
     my ($slug) = @_;
 
@@ -624,6 +634,8 @@ $_ = (substr($q->path_info(), 1) or '1.html');
 if (/^_([^\s.]*)$/) {
     if ($1 eq "recent") {
         show_recent;
+    } elsif ($1 eq "all") {
+        show_all;
     } else {
         four_oh_four "Unknown special page '$1'";
     }
