@@ -84,7 +84,14 @@ footer p {
 
 pre, blockquote {
     padding: 1rem;
+}
+
+pre, blockquote, code {
     background-color: #dddddd;
+}
+
+p code {
+    padding: 0 .2em;
 }
 
 blockquote {

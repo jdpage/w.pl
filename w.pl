@@ -13,7 +13,7 @@ use CGI;
 use Data::Dump qw(dump);
 use Date::Format;
 use DBI;
-use Digest::MD5;
+use Digest::MD5 qw(md5_hex md5_base64);
 use List::MoreUtils qw(uniq);
 use HTML::Template;
 
@@ -255,10 +255,30 @@ sub escape_html {
     return $block;
 }
 
+sub hash_inline {
+    my ($inlines, $text) = @_;
+    my $hash = md5_hex($text);
+    $inlines->{$hash} = $text;
+    return qq([[inline:$hash]]);
+}
+
 sub render_inlines {
     my ($block) = @_;
 
     $block = escape_html $block;
+
+    # some things need to be taken out entirely before rendering is done.
+    my %inlines;
+
+    # save off the <code> stuff so it doesn't get mangled
+    $block =~ s/`([^\s](?:.*?[^\s])?)`/
+        hash_inline(\%inlines, "<code>$1<\/code>")
+    /gse;
+
+    # save off MathJAX stuff too
+    $block =~ s/\$\$(.*?)\$\$/hash_inline(\%inlines, "\$\$$1\$\$")/gse;
+    $block =~ s/\\\[(.*?)\\\]/hash_inline(\%inlines, "\\[$1\\]")/gse;
+    $block =~ s/\\\((.*?)\\\)/hash_inline(\%inlines, "\\($1\\)")/gse;
 
     # nice dashes
     $block =~ s/---/&mdash;/g;
@@ -278,6 +298,9 @@ sub render_inlines {
 
     # links
     $block =~ s/\[\[(.+?)(?:\|(.+?))?\]\]/render_link($1, $2)/ge;
+
+    # re-insert inlines
+    $block =~ s/\[\[inline:(.*?)\]\]/$inlines{$1}/ge;
 
     return $block;
 }
@@ -303,6 +326,9 @@ sub render_link {
         } else {
             return qq(<a href="$url.html" class="internal broken">$text</a>);
         }
+    } elsif ($url =~ /^inline:(.*)$/) {
+        # a hashed inline; just pass it through
+        return qq([[$url]]);
     } elsif ($url =~ /^date:(\d+)$/) {
         # auto-render a date
         return render_time($1);
