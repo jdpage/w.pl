@@ -244,13 +244,21 @@ sub handle_blocks {
     return @blocks;
 }
 
-sub render_inlines {
+sub escape_html {
     my ($block) = @_;
 
     # avoid getting boned in exciting ways by HTML
     $block =~ s/&/&amp;/g;
     $block =~ s/</&lt;/g;
     $block =~ s/>/&gt;/g;
+
+    return $block;
+}
+
+sub render_inlines {
+    my ($block) = @_;
+
+    $block = escape_html $block;
 
     # nice dashes
     $block =~ s/---/&mdash;/g;
@@ -265,11 +273,11 @@ sub render_inlines {
     $block =~ s/(^|\s)'([^\s](?:.*?[^\s])?)'(\s|$)/$1&lsquo;$2&rsquo;$3/gs;
     $block =~ s/'/&apos;/g;
 
-    # links
-    $block =~ s/\[\[(.+?)(?:\|(.+?))?\]\]/render_link($1, $2)/ge;
-
     # images
     $block =~ s/\{\{(.+?)\|(.+?)\}\}/<img src="$1" title="$2" alt="$2" \/>/g;
+
+    # links
+    $block =~ s/\[\[(.+?)(?:\|(.+?))?\]\]/render_link($1, $2)/ge;
 
     return $block;
 }
@@ -295,6 +303,17 @@ sub render_link {
         } else {
             return qq(<a href="$url.html" class="internal broken">$text</a>);
         }
+    } elsif ($url =~ /^date:(\d+)$/) {
+        # auto-render a date
+        return render_time($1);
+    } elsif ($url =~ /^doi:(.*)$/) {
+        # auto-render a DOI
+        $text //= $url;
+        return qq(<a href="http://doi.org/$1" rel="nofollow" 
+                     class="external doi">$text</a>);
+    } elsif ($url =~ /^mailto:(.*)$/) {
+        # email address
+        return qq(<a href="$url">$1</a>);
     } else {
         # just output it
         $text //= $url;
@@ -310,6 +329,8 @@ sub preprocess_link {
         # rewrite that
         $text //= $url;
         return qq([[$id|$text]]);
+    } elsif ($url =~ /^date:now$/) {
+        return '[[date:' . time . ']]';
     } else {
         # pass through
         if (defined $text) {
@@ -320,8 +341,17 @@ sub preprocess_link {
     }
 }
 
+sub generate_signature {
+    my ($username) = @_;
+
+    my $userlink = preprocess_link($username);
+    my $time = time;
+
+    return qq(---$userlink on [[date:$time]]);
+}
+
 sub preprocess_entry {
-    my ($content) = @_;
+    my ($content, $username) = @_;
 
     # this should do two things: compile a list of links
     # this page makes to other pages, and rewrite links
@@ -338,7 +368,10 @@ sub preprocess_entry {
                 push @links, $id;
             }
         }
-        s/\[\[(.+?)(?:\|(.+?))?\]\]/preprocess_link($1, $2)/ge;
+        if (!/^\s{4,}/) {
+            s/\[\[(.+?)(?:\|(.+?))?\]\]/preprocess_link($1, $2)/ge;
+            s/~~~~/generate_signature($username)/ge;
+        }
         push @blocks, $_;
     }
 
@@ -377,7 +410,7 @@ sub render_entry {
         } elsif (/^\s{4,}/) {
             my $prefix = "<pre><code>";
             while (/^\s{4,}(.*)$/gm) {
-                push @output, $prefix . $1;
+                push @output, $prefix . escape_html($1);
                 $prefix = '';
             }
             push @output, "</code></pre>";
@@ -396,9 +429,11 @@ sub render_entry {
             }
             push @output, "</ol>";
         } elsif (/^bq(?:\(([\w\s]*)\))?\.\s+(.*)$/s) {
-            push @output, qq(<blockquote class="$1">$2</blockquote>);
+            push @output, qq(<blockquote class=") . escape_html($1) . qq(">) .
+                render_inlines($2) . qq(</blockquote>);
         } elsif (/^p(?:\(([\w\s]*)\))?\.\s+(.*)$/s) {
-            push @output, qq(<p class="$1">$2</p>);
+            push @output, qq(<p class=") . escape_html($1) . qq(">) .
+                render_inlines($2) . qq(</p>);
         } else {
             push @output, "<p>" . render_inlines($_) . "</p>";
         }
@@ -458,7 +493,7 @@ sub edit_entry {
             my $cookie = CGI->cookie(
                 -name => 'username',
                 -value => $username);
-            my ($pcontent, $links) = preprocess_entry($content);
+            my ($pcontent, $links) = preprocess_entry($content, $username);
 
             put_entry($id, $title, $fullname, $pcontent, $links, $base);
 
