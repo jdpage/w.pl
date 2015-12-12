@@ -78,6 +78,10 @@ p, blockquote {
     text-indent: 2em;
 }
 
+p.error {
+    color: red;
+}
+
 footer p {
     text-indent: 0;
 }
