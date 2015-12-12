@@ -14,6 +14,7 @@ use Data::Dump qw(dump);
 use Date::Format;
 use DBI;
 use Digest::MD5;
+use List::MoreUtils qw(uniq);
 use HTML::Template;
 
 if (defined $ENV{DOCUMENT_ROOT}) {
@@ -53,19 +54,32 @@ sub get_entry {
 }
 
 sub put_entry {
-    my ($id, $title, $username, $content, $base) = @_;
+    my ($id, $title, $username, $content, $links, $base) = @_;
 
-    my $revp = $db->prepare(q(
-        insert into revisions values(
-            NULL, ?, ?, ?, ?);
-        commit;)) or die $db->errstr;
-    $revp->execute(time, $username, $content, $base) or die $db->errstr;
-    my $revid = $db->sqlite_last_insert_rowid();
+    # insert new revision
+    my $revp = $db->prepare(q(insert into revisions values(NULL, ?, ?, ?, ?)))
+        or die $db->errstr;
+    $revp->execute(time, $username, $content, $base) or die $revp->errstr;
+    my $revid = $db->sqlite_last_insert_rowid;
 
+    # update page entry to point to new revision
     my $pagep = $db->prepare(q(
         insert or replace into pages values(
             ?, ?, ?))) or die $db->errstr;
-    $pagep->execute($id, $title, $revid) or die $db->errstr;
+    $pagep->execute($id, $title, $revid) or die $pagep->errstr;
+    my $pageid = $db->sqlite_last_insert_rowid;
+
+    # remove all links from this page
+    my $dlp = $db->prepare(q(delete from links where page = ?))
+        or die $db->errstr;
+    $dlp->execute($pageid) or die $dlp->errstr;
+
+    # add links from this page
+    my $ilp = $db->prepare(q(insert into links values(?, ?)))
+        or die $db->errstr;
+    for my $link (@{$links}) {
+        $ilp->execute($pageid, $link) or die $ilp->errstr;
+    }
 }
 
 sub get_all_pages {
@@ -113,7 +127,8 @@ sub get_links {
         select pages.*
         from links join pages
         on links.page = pages.pageid
-        where target = ?))
+        where target = ?
+        order by pages.title))
         or die $db->errstr;
     $pst->execute($id) or die $pst->errstr;
     my @links;
@@ -238,12 +253,12 @@ sub render_inlines {
     $block =~ s/>/&gt;/g;
 
     # strong before em
-    $block =~ s/\*\*(\w.*?\w|\w)\*\*/<strong>$1<\/strong>/g;
-    $block =~ s/\*(\w.*?\w|\w)\*/<em>$1<\/em>/g;
+    $block =~ s/\*\*(\w.*?\w|\w)\*\*/<strong>$1<\/strong>/gs;
+    $block =~ s/\*(\w.*?\w|\w)\*/<em>$1<\/em>/gs;
 
     # nice quotes
-    $block =~ s/(^|\s)"(\w.*?\w|\w)"(\s|$)/$1&ldquo;$2&rdquo;$3/g;
-    $block =~ s/(^|\s)'(\w.*?\w|\w)'(\w|$)/$1&lsquo;$2&rsquo;$3/g;
+    $block =~ s/(^|\s)"(\w.*?\w|\w)"(\s|$)/$1&ldquo;$2&rdquo;$3/gs;
+    $block =~ s/(^|\s)'(\w.*?\w|\w)'(\w|$)/$1&lsquo;$2&rsquo;$3/gs;
     $block =~ s/'/&apos;/g;
 
     # links
@@ -291,8 +306,18 @@ sub preprocess_entry {
     
     # fix newlines
     $content =~ s/\r\n|\r/\n/g;
+    my @links;
 
-    return $content, [];
+    for (handle_blocks $content) {
+        while (/\[\[(.+?)(\|.+?)?\]\]/g) {
+            if (my $id = get_id $1) {
+                push @links, $id;
+            }
+        }
+    }
+
+    @links = uniq(@links);
+    return $content, \@links;
 }
 
 sub generate_partial {
@@ -305,11 +330,17 @@ sub generate_partial {
 sub render_entry {
     my ($content) = @_;
     my @output;
+    my @sstack = (0);
     for (handle_blocks $content) {
-        if (/^(={2,})\s*(.*?)\s*(=*)\s*$/) {
+        if (/^(={2,6})\s*(.*?)\s*(=*)\s*$/) {
             my $level = length $1;
             my $text = render_inlines $2;
             my $partial = generate_partial $2;
+            while ($#sstack >= $level) {
+                push @output, pop(@sstack);
+            }
+            push @output, qq(<section>);
+            push @sstack, qq(</section>);
             push @output, qq(<h$level id="$partial">
                 $text
                 <a class="partial" href="#$partial">#</a>
@@ -343,6 +374,11 @@ sub render_entry {
             push @output, "<p>" . render_inlines($_) . "</p>";
         }
     }
+
+    while ($#sstack > 1) {
+        push @output, pop(@sstack);
+    }
+
     return join "\n", @output;
 }
 
@@ -395,7 +431,7 @@ sub edit_entry {
                 -value => $username);
             my ($pcontent, $links) = preprocess_entry($content);
 
-            put_entry($id, $title, $fullname, $pcontent, $base);
+            put_entry($id, $title, $fullname, $pcontent, $links, $base);
 
             my $template = HTML::Template->new(
                 filename => 'templates/editok.html');

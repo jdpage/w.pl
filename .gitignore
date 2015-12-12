@@ -1,2 +1,4 @@
 Makefile
 errors.err
+*.swp
+*.sqlite3
