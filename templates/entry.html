@@ -1,0 +1,23 @@
+<header>
+    <h1><a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.links">
+        <TMPL_VAR NAME=TITLE ESCAPE=HTML>
+    </a></h1>
+</header>
+<article>
+    <TMPL_VAR NAME=CONTENT>
+</article>
+<footer>
+    <p>
+        Last edited
+        by <a href="<TMPL_VAR NAME=USERNAME ESCAPE=HTML>.html" class='username'>
+            <TMPL_VAR NAME=USERNAME ESCAPE=HTML></a>
+        on <span class='date'><TMPL_VAR NAME=EDITED></span>.
+    </p>
+    <nav>
+        <ul>
+            <li><a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.edit">
+                Edit this page</a></li>
+            <li><a href="1.html">Back to home</a></li>
+        </ul>
+    </nav>
+</footer>
