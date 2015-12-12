@@ -252,18 +252,21 @@ sub render_inlines {
     $block =~ s/</&lt;/g;
     $block =~ s/>/&gt;/g;
 
+    # nice dashes
+    $block =~ s/---/&mdash;/g;
+    $block =~ s/--/&ndash;/g;
+
     # strong before em
-    $block =~ s/\*\*(\w.*?\w|\w)\*\*/<strong>$1<\/strong>/gs;
-    $block =~ s/\*(\w.*?\w|\w)\*/<em>$1<\/em>/gs;
+    $block =~ s/\*\*([^\s](?:.*?[^\s])?)\*\*/<strong>$1<\/strong>/gs;
+    $block =~ s/\*([^\s](?:.*?[^\s])?)\*/<em>$1<\/em>/gs;
 
     # nice quotes
-    $block =~ s/(^|\s)"(\w.*?\w|\w)"(\s|$)/$1&ldquo;$2&rdquo;$3/gs;
-    $block =~ s/(^|\s)'(\w.*?\w|\w)'(\w|$)/$1&lsquo;$2&rsquo;$3/gs;
+    $block =~ s/(^|\s)"([^\s](?:.*?[^\s])?)"(\s|$)/$1&ldquo;$2&rdquo;$3/gs;
+    $block =~ s/(^|\s)'([^\s](?:.*?[^\s])?)'(\s|$)/$1&lsquo;$2&rsquo;$3/gs;
     $block =~ s/'/&apos;/g;
 
     # links
-    $block =~ s/\[\[(.+?)\|(.+?)\]\]/render_link($1, $2)/ge;
-    $block =~ s/\[\[(.+?)\]\]/render_link($1)/ge;
+    $block =~ s/\[\[(.+?)(?:\|(.+?))?\]\]/render_link($1, $2)/ge;
 
     # images
     $block =~ s/\{\{(.+?)\|(.+?)\}\}/<img src="$1" title="$2" alt="$2" \/>/g;
@@ -295,7 +298,7 @@ sub render_link {
     } else {
         # just output it
         $text //= $url;
-        return qq(<a href="$url" class="external">$text</a>);
+        return qq(<a rel="nofollow" href="$url" class="external">$text</a>);
     }
 }
 
@@ -335,8 +338,7 @@ sub preprocess_entry {
                 push @links, $id;
             }
         }
-        s/\[\[(.+?)\|(.+?)\]\]/preprocess_link($1, $2)/ge;
-        s/\[\[(.+?)\]\]/preprocess_link($1)/ge;
+        s/\[\[(.+?)(?:\|(.+?))?\]\]/preprocess_link($1, $2)/ge;
         push @blocks, $_;
     }
 
