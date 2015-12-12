@@ -498,6 +498,7 @@ sub edit_entry {
     if ($q->request_method eq 'POST') {
         my $oldcontent = $content;
         my $oldtitle = $title;
+        my $oldbase = $base;
         $base = $q->param('base');
         $username = $q->param('username');
         $content = $q->param('content');
@@ -517,6 +518,12 @@ sub edit_entry {
             push @errors, { message =>
                 "a username must be made of one or more letters and numbers " .
                 "and must begin with a letter" };
+        } elsif ($base != $oldbase) {
+            # validate no conflicting edit
+            push @errors, { message =>
+                "another user edited this page while you were typing. Please " .
+                "make a copy of your changes and " .
+                qq(<a href="$slug.edit">click here to start over</a>.) }
         } else {
             # validation passed, save and redirect
             my $fullname = $username . "@" . $q->remote_addr;
