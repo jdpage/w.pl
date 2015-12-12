@@ -1,17 +1,15 @@
+CREATE TABLE pages
+(   pageid INTEGER PRIMARY KEY
+,   title TEXT UNIQUE NOT NULL COLLATE NOCASE
+);
+
 CREATE TABLE revisions
 (   revisionid INTEGER PRIMARY KEY
 ,   edited INTEGER NOT NULL
 ,   editor TEXT NOT NULL
 ,   content TEXT NOT NULL
-,   lastrevision INTEGER
-,   FOREIGN KEY(lastrevision) REFERENCES revisions(revisionid)
-);
-
-CREATE TABLE pages
-(   pageid INTEGER PRIMARY KEY
-,   title TEXT UNIQUE NOT NULL COLLATE NOCASE
-,   revision INTEGER NOT NULL UNIQUE
-,   FOREIGN KEY(revision) REFERENCES revisions(revisionid)
+,   page INTEGER NOT NULL
+,   FOREIGN KEY(page) REFERENCES pages(pageid)
 );
 
 CREATE TABLE links
@@ -21,5 +19,5 @@ CREATE TABLE links
 ,   FOREIGN KEY(target) REFERENCES pages(pageid)
 );
 
-insert into revisions values(1, 0, "nobody@localhost", "Nothing here yet", NULL);
-insert into pages values(1, "One", 1);
+insert into pages values(1, "One");
+insert into revisions values(1, 0, "nobody@localhost", "Nothing here yet", 1);

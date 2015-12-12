@@ -34,12 +34,12 @@ sub get_entry {
     my $stmt = q(
         select pages.pageid
              , pages.title
-             , pages.revision
+             , revisions.revisionid
              , revisions.edited
              , revisions.editor
              , revisions.content
-        from pages join revisions
-        on pages.revision = revisions.revisionid);
+        from revisions join pages
+        on revisions.page = pages.pageid);
 
     if ($title =~ /^(\d+)$/) {
         $stmt .= q(
@@ -48,6 +48,9 @@ sub get_entry {
         $stmt .= q(
             where pages.title = ?);
     }
+    $stmt .= q(
+        order by revisions.edited desc
+        limit 1);
     my $pst = $db->prepare($stmt) or die $db->errstr;
     $pst->execute($title) or die $pst->errstr;
     return $pst->fetchrow_hashref;
@@ -56,18 +59,17 @@ sub get_entry {
 sub put_entry {
     my ($id, $title, $username, $content, $links, $base) = @_;
 
+    # update page entry
+    my $pagep = $db->prepare(q(insert or replace into pages values(?, ?)))
+        or die $db->errstr;
+    $pagep->execute($id, $title) or die $pagep->errstr;
+    my $pageid = $db->sqlite_last_insert_rowid;
+
     # insert new revision
     my $revp = $db->prepare(q(insert into revisions values(NULL, ?, ?, ?, ?)))
         or die $db->errstr;
-    $revp->execute(time, $username, $content, $base) or die $revp->errstr;
+    $revp->execute(time, $username, $content, $pageid) or die $revp->errstr;
     my $revid = $db->sqlite_last_insert_rowid;
-
-    # update page entry to point to new revision
-    my $pagep = $db->prepare(q(
-        insert or replace into pages values(
-            ?, ?, ?))) or die $db->errstr;
-    $pagep->execute($id, $title, $revid) or die $pagep->errstr;
-    my $pageid = $db->sqlite_last_insert_rowid;
 
     # remove all links from this page
     my $dlp = $db->prepare(q(delete from links where page = ?))
@@ -146,8 +148,8 @@ sub get_edits {
              , pages.title
              , revisions.edited
              , revisions.editor
-        from pages join revisions
-        on pages.revision = revisions.revisionid
+        from revisions join pages
+        on revisions.page = pages.pageid
         order by revisions.edited desc
         limit 100))
         or die $db->errstr;
@@ -490,7 +492,7 @@ sub edit_entry {
         $id = $entry->{pageid};
         $title = $entry->{title};
         $content = $entry->{content};
-        $base = $entry->{revision};
+        $base = $entry->{revisionid};
     }
 
     if ($q->request_method eq 'POST') {
