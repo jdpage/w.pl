@@ -29,7 +29,7 @@ my $db = DBI->connect("DBI:SQLite:dbname=$database") or die $DBI::errstr;
 ### database access ###
 
 sub get_entry {
-    my ($title) = @_;
+    my ($title, $on) = @_;
 
     my $stmt = q(
         select pages.pageid
@@ -48,11 +48,19 @@ sub get_entry {
         $stmt .= q(
             where pages.title = ?);
     }
+    if (defined $on) {
+        $stmt .= q(
+            and revisions.edited <= ?);
+    }
     $stmt .= q(
         order by revisions.edited desc
         limit 1);
     my $pst = $db->prepare($stmt) or die $db->errstr;
-    $pst->execute($title) or die $pst->errstr;
+    if (defined $on) {
+        $pst->execute($title, $on) or die $pst->errstr;
+    } else {
+        $pst->execute($title) or die $pst->errstr;
+    }
     return $pst->fetchrow_hashref;
 }
 
@@ -285,8 +293,8 @@ sub render_inlines {
     $block =~ s/\\\((.*?)\\\)/hash_inline(\%inlines, "\\($1\\)")/gse;
 
     # nice dashes
-    $block =~ s/---/&mdash;/g;
-    $block =~ s/--/&ndash;/g;
+    $block =~ s/--/&mdash;/g;
+    $block =~ s/(^|\s)-(\s|$)/$1&ndash;$2/g;
 
     # strong before em
     $block =~ s/\*\*([^\s](?:.*?[^\s])?)\*\*/<strong>$1<\/strong>/gs;
@@ -296,6 +304,17 @@ sub render_inlines {
     $block =~ s/(^|\s)"([^\s](?:.*?[^\s])?)"(\s|$)/$1&ldquo;$2&rdquo;$3/gs;
     $block =~ s/(^|\s)'([^\s](?:.*?[^\s])?)'(\s|$)/$1&lsquo;$2&rsquo;$3/gs;
     $block =~ s/'/&apos;/g;
+
+    # times symbol
+    $block =~ s/(\d\s*)[xX](\s*\d)/$1&times;$2/gs;
+
+    # ellipses
+    $block =~ s/\.{3}/&#8230;/g;
+
+    # TM, C, R
+    $block =~ s/\(TM\)/&#8482;/gi;
+    $block =~ s/\(C\)/&#169;/gi;
+    $block =~ s/\(R\)/&#174;/gi;
 
     # images
     $block =~ s/\{\{(.+?)\|(.+?)\}\}/<img src="$1" title="$2" alt="$2" \/>/g;
@@ -377,7 +396,7 @@ sub generate_signature {
     my $userlink = preprocess_link($username);
     my $time = time;
 
-    return qq(---$userlink on [[date:$time]]);
+    return qq(--$userlink on [[date:$time]]);
 }
 
 sub preprocess_entry {
@@ -591,8 +610,9 @@ sub render_time {
 
 sub show_entry {
     my ($slug) = @_;
-
-    if (my $page = get_entry $slug) {
+    
+    my $on = $q->param('on');
+    if (my $page = get_entry($slug, $on)) {
         my $template = HTML::Template->new(filename => 'templates/entry.html');
         $template->param(TITLE => $page->{title});
         $template->param(CONTENT => render_entry($page->{content}));
@@ -609,7 +629,8 @@ sub show_recent {
     my @edits = map { {
         TITLE => $_->{title},
         USERNAME => get_username($_->{editor}),
-        EDITED => render_time($_->{edited}),
+        EDITED => $_->{edited},
+        FORMATTEDTIME => render_time($_->{edited}),
     } } get_edits;
 
     my $template = HTML::Template->new(

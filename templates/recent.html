@@ -8,7 +8,8 @@
                 <TMPL_VAR NAME=TITLE ESCAPE=HTML></a>
             by <a class='username' href="<TMPL_VAR NAME=USERNAME ESCAPE=HTML>.html">
                 <TMPL_VAR NAME=USERNAME ESCAPE=HTML></a>
-            on <span class='date'><TMPL_VAR NAME=EDITED></span>
+            on <a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html?on=<TMPL_VAR NAME=EDITED>"
+                  class="date"><TMPL_VAR NAME=FORMATTEDTIME></a>
         </li>
     </TMPL_LOOP></ol>
 </article>
