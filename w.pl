@@ -8,12 +8,13 @@ use diagnostics;
 use constant TIMEZONE => 'EST';
 use constant DATABASE => '/home/protected/books.sqlite3';
 use constant TITLE_PATTERN => qr/^[a-z][a-z0-9]*$/i;
+use constant USERNAME_PATTERN => qr/^([a-z][a-z0-9]*)(?:#(.*))?$/i;
 
 use CGI;
 use Data::Dump qw(dump);
 use Date::Format;
 use DBI;
-use Digest::MD5 qw(md5_hex md5_base64);
+use Digest::MD5 qw(md5_hex);
 use List::MoreUtils qw(uniq);
 use HTML::Template;
 
@@ -352,6 +353,12 @@ sub render_link {
     } elsif ($url =~ /^inline:(.*)$/) {
         # a hashed inline; just pass it through
         return qq([[$url]]);
+    } elsif ($url =~ /^user:(.*?)(?:!(.*))?$/) {
+        if (defined $2) {
+            return render_link($1, qq($1<img src="http://gravatar.com/avatar/$2?s=16&d=retro&f=y" alt="$1" class="tripicon" />));
+        } else {
+            return render_link($1);
+        }
     } elsif ($url =~ /^date:(\d+)$/) {
         # auto-render a date
         return render_time($1);
@@ -392,11 +399,9 @@ sub preprocess_link {
 
 sub generate_signature {
     my ($username) = @_;
-
-    my $userlink = preprocess_link($username);
     my $time = time;
 
-    return qq(--$userlink on [[date:$time]]);
+    return qq(--[[user:$username]] on [[date:$time]]);
 }
 
 sub preprocess_entry {
@@ -532,7 +537,7 @@ sub edit_entry {
             # validate duplicates
             push @errors, { message =>
                 "a page with named '$title' already exists" };
-        } elsif ($username !~ TITLE_PATTERN) {
+        } elsif ($username !~ USERNAME_PATTERN) {
             # validate username format
             push @errors, { message =>
                 "a username must be made of one or more letters and numbers " .
@@ -545,11 +550,16 @@ sub edit_entry {
                 qq(<a href="$slug.edit">click here to start over</a>.) }
         } else {
             # validation passed, save and redirect
-            my $fullname = $username . "@" . $q->remote_addr;
+            $username =~ USERNAME_PATTERN;
+            my $name = $1;
+            my $code = md5_hex($2);
+            my $ip = $q->remote_addr;
+
+            my $fullname = $name . "!" . $code . "@" . $q->remote_addr;
             my $cookie = CGI->cookie(
                 -name => 'username',
                 -value => $username);
-            my ($pcontent, $links) = preprocess_entry($content, $username);
+            my ($pcontent, $links) = preprocess_entry($content, "$name!$code");
 
             put_entry($id, $title, $fullname, $pcontent, $links, $base);
 
@@ -595,12 +605,12 @@ sub ref_list {
     }
 }
 
-sub get_username {
+sub render_username {
     my ($editor) = @_;
     if ($editor =~ /^([^@]*)@([^@]*)$/) {
-        return $1;
+        return render_link("user:$1");
     }
-    return $editor;
+    return render_link($editor);
 }
 
 sub render_time {
@@ -616,7 +626,7 @@ sub show_entry {
         my $template = HTML::Template->new(filename => 'templates/entry.html');
         $template->param(TITLE => $page->{title});
         $template->param(CONTENT => render_entry($page->{content}));
-        $template->param(USERNAME => get_username($page->{editor}));
+        $template->param(USERLINK => render_username($page->{editor}));
         $template->param(EDITED => render_time($page->{edited}));
         $template->param(ID => $page->{pageid});
         show_page("200 OK", $page->{title}, $template->output);
@@ -628,7 +638,7 @@ sub show_entry {
 sub show_recent {
     my @edits = map { {
         TITLE => $_->{title},
-        USERNAME => get_username($_->{editor}),
+        USERLINK => render_username($_->{editor}),
         EDITED => $_->{edited},
         FORMATTEDTIME => render_time($_->{edited}),
     } } get_edits;

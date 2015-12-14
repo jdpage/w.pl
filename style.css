@@ -115,6 +115,11 @@ a.broken {
     color: #c00000;
 }
 
+img.tripicon {
+    vertical-align: middle;
+    margin: 2px;
+}
+
 hr {
     height: 0;
     border: 0 solid #303030;
