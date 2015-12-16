@@ -385,7 +385,7 @@ sub preprocess_link {
         # rewrite that
         $text //= $url;
         return qq([[$id|$text]]);
-    } elsif ($url =~ /^date:now$/) {
+    } elsif ($url =~ /^date::now$/) {
         return '[[date:' . time . ']]';
     } else {
         # pass through
