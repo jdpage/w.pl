@@ -365,9 +365,9 @@ sub render_link {
         return qq([[$url]]);
     } elsif ($url =~ /^user:(.*?)(?:!(.*))?$/) {
         if (defined $2) {
-            return render_link($1, qq($1<img src="http://gravatar.com/avatar/$2?s=16&d=retro&f=y" alt="$1" class="tripicon" />));
+            return render_link("User/$1", qq($1<img src="http://gravatar.com/avatar/$2?s=16&d=retro&f=y" alt="$1" class="tripicon" />));
         } else {
-            return render_link($1);
+            return render_link("User/$1", $1);
         }
     } elsif ($url =~ /^date:(\d+)$/) {
         # auto-render a date
