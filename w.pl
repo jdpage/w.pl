@@ -562,14 +562,20 @@ sub edit_entry {
             # validation passed, save and redirect
             $username =~ USERNAME_PATTERN;
             my $name = $1;
-            my $code = md5_hex($2);
             my $ip = $q->remote_addr;
 
-            my $fullname = $name . "!" . $code . "@" . $q->remote_addr;
+            my $tripname;
+            if (defined $2) {
+                $tripname = $name . "!" . md5_hex($2);
+            } else {
+                $tripname = $name;
+            }
+
+            my $fullname = $tripname . "@" . $q->remote_addr;
             my $cookie = CGI->cookie(
                 -name => 'username',
                 -value => $username);
-            my ($pcontent, $links) = preprocess_entry($content, "$name!$code");
+            my ($pcontent, $links) = preprocess_entry($content, $tripname);
 
             put_entry($id, $title, $fullname, $pcontent, $links, $base);
 
