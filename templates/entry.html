@@ -1,5 +1,5 @@
 <header>
-    <h1><a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.links">
+    <h1><a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.links">
         <TMPL_VAR NAME=TITLE ESCAPE=HTML>
     </a></h1>
 </header>
@@ -14,13 +14,13 @@
     </p>
     <nav>
         <ul>
-            <li><a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.edit">
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.edit">
                 Edit this page</a></li>
-            <li><a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.txt">
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.txt">
                 Text-only version</a></li>
-            <li><a href="<TMPL_VAR NAME=ID>.html">Permalink</a></li>
-            <li><a href="1.html">Back to home</a></li>
-            <li><a href="_recent">Recent edits</a></li>
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=ID>.html">Permalink</a></li>
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/1.html">Back to home</a></li>
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/_recent">Recent edits</a></li>
         </ul>
     </nav>
 </footer>

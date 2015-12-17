@@ -4,10 +4,10 @@
 <article>
     <ol><TMPL_LOOP NAME=EDITS>
         <li>
-            <a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
+            <a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
                 <TMPL_VAR NAME=TITLE ESCAPE=HTML></a>
             by <TMPL_VAR NAME=USERLINK>
-            on <a href="<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html?on=<TMPL_VAR NAME=EDITED>"
+            on <a href="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html?on=<TMPL_VAR NAME=EDITED>"
                   class="date"><TMPL_VAR NAME=FORMATTEDTIME></a>
         </li>
     </TMPL_LOOP></ol>
@@ -15,7 +15,7 @@
 <footer>
     <nav>
         <ul>
-            <li><a href="1.html">Back to home</a></li>
+            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/1.html">Back to home</a></li>
         </ul>
     </nav>
 </footer>
