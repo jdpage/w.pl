@@ -14,7 +14,7 @@
 <p class='error'>Error: <TMPL_VAR NAME=MESSAGE></p>
 </TMPL_LOOP>
 
-<form method='POST' action="<TMPL_VAR NAME=SITE_ROOT>/<TMPL_VAR NAME=SLUG ESCAPE=HTML>.edit">
+<form method='POST' action="<TMPL_VAR NAME=SITE_ROOT>/e/<TMPL_VAR NAME=SLUG ESCAPE=HTML>">
     <input name='id' type='hidden' value='<TMPL_VAR NAME=ID ESCAPE=HTML>'>
     <TMPL_IF NAME=BASE>
     <input name='base' type='hidden' value='<TMPL_VAR NAME=BASE ESCAPE=HTML>'>

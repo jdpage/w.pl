@@ -1,19 +1,20 @@
 #!/usr/bin/env perl
 
+# File: w.pl
+#
+# Handles displaying content pages
+
 use 5.018;
 use strict;
 use warnings;
 use diagnostics;
 
-use constant TITLE_PATTERN => qr/^[a-z][a-z0-9]*(?:\/[a-z][a-z0-9]*)*$/i;
-use constant USERNAME_PATTERN => qr/^([a-z][a-z0-9]*)(?:#(.*))?$/i;
+use M::Const;
+use M::DB;
+use M::Render;
 
 use CGI;
 use Data::Dump qw(dump);
-use Date::Format;
-use DBI;
-use Digest::MD5 qw(md5_hex);
-use List::MoreUtils qw(uniq);
 use HTML::Template;
 
 if (defined $ENV{DOCUMENT_ROOT}) {
@@ -23,665 +24,59 @@ if (defined $ENV{DOCUMENT_ROOT}) {
 # load configuration
 my %conf = do 'conf.pl';
 
-my $q = CGI->new;
-my $database = $conf{DATABASE};
-my $db = DBI->connect("DBI:SQLite:dbname=$database") or die $DBI::errstr;
-
-
-### database access ###
-
-sub get_entry {
-    my ($title, $on) = @_;
-
-    my $stmt = q(
-        select pages.pageid
-             , pages.title
-             , revisions.revisionid
-             , revisions.edited
-             , revisions.editor
-             , revisions.content
-        from revisions join pages
-        on revisions.page = pages.pageid);
-
-    if ($title =~ /^(\d+)$/) {
-        $stmt .= q(
-            where pages.pageid = ?);
-    } else {
-        $stmt .= q(
-            where pages.title = ?);
-    }
-    if (defined $on) {
-        $stmt .= q(
-            and revisions.edited <= ?);
-    }
-    $stmt .= q(
-        order by revisions.edited desc
-        limit 1);
-    my $pst = $db->prepare($stmt) or die $db->errstr;
-    if (defined $on) {
-        $pst->execute($title, $on) or die $pst->errstr;
-    } else {
-        $pst->execute($title) or die $pst->errstr;
-    }
-    return $pst->fetchrow_hashref;
-}
-
-sub put_entry {
-    my ($id, $title, $username, $content, $links, $base) = @_;
-
-    # update page entry
-    my $pagep = $db->prepare(q(insert or replace into pages values(?, ?)))
-        or die $db->errstr;
-    $pagep->execute($id, $title) or die $pagep->errstr;
-    my $pageid = $db->sqlite_last_insert_rowid;
-
-    # insert new revision
-    my $revp = $db->prepare(q(insert into revisions values(NULL, ?, ?, ?, ?)))
-        or die $db->errstr;
-    $revp->execute(time, $username, $content, $pageid) or die $revp->errstr;
-    my $revid = $db->sqlite_last_insert_rowid;
-
-    # remove all links from this page
-    my $dlp = $db->prepare(q(delete from links where page = ?))
-        or die $db->errstr;
-    $dlp->execute($pageid) or die $dlp->errstr;
-
-    # add links from this page
-    my $ilp = $db->prepare(q(insert into links values(?, ?)))
-        or die $db->errstr;
-    for my $link (@{$links}) {
-        $ilp->execute($pageid, $link) or die $ilp->errstr;
-    }
-}
-
-sub get_all_pages {
-    my $pst = $db->prepare(q(select * from pages order by pageid))
-        or die $db->errstr;
-    $pst->execute() or die $pst->errstr;
-    my @pages;
-    while (my $row = $pst->fetchrow_hashref) {
-        push @pages, $row;
-    }
-    return @pages;
-}
-
-sub get_id {
-    my ($title) = @_;
-    if ($title =~ /^(\d+)$/) {
-        return $title;
-    }
-
-    my $pst = $db->prepare(q(
-        select pageid from pages
-        where title = ?
-        limit 1))
-        or die $db->errstr;
-    $pst->execute($title) or die $pst->errstr;
-    my $row = $pst->fetchrow_hashref;
-    return $row->{pageid};
-}
-
-sub get_title {
-    my ($id) = @_;
-    $id = get_id $id;
-    my $pst = $db->prepare(q(
-        select title from pages
-        where pageid = ?
-        limit 1))
-        or die $db->errstr;
-    $pst->execute($id) or die $pst->errstr;
-    my $row = $pst->fetchrow_hashref;
-    return $row->{title};
-}
-
-sub get_links {
-    my ($title) = @_;
-    my $id = get_id $title;
-    my $pst = $db->prepare(q(
-        select pages.*
-        from links join pages
-        on links.page = pages.pageid
-        where target = ?
-        order by pages.title))
-        or die $db->errstr;
-    $pst->execute($id) or die $pst->errstr;
-    my @links;
-    while (my $row = $pst->fetchrow_hashref) {
-        push @links, $row;
-    }
-    return @links;
-}
-
-sub get_edits {
-    my $pst = $db->prepare(q(
-        select pages.pageid
-             , pages.title
-             , revisions.edited
-             , revisions.editor
-        from revisions join pages
-        on revisions.page = pages.pageid
-        order by revisions.edited desc
-        limit 100))
-        or die $db->errstr;
-    $pst->execute() or die $pst->errstr;
-    my @edits;
-    while (my $row = $pst->fetchrow_hashref) {
-        push @edits, $row;
-    }
-    return @edits;
-}
-
-
-### html output ###
-
-sub show_page {
-    my ($status, $title, $body) = @_;
-
-    my $template = HTML::Template->new(
-        filename => 'templates/main.html',
-        die_on_bad_params => 0);
-    $template->param(TITLE => $title);
-    $template->param(SITE_ROOT => $conf{SITE_ROOT});
-    $template->param(BODY => $body);
-    print $q->header("text/html; charset=utf-8", $status);
-    print $template->output;
-}
-
-sub four_oh_four {
-    my ($message) = @_;
-    my $template = HTML::Template->new(
-        filename => 'templates/404.html',
-        die_on_bad_params => 0);
-    $template->param(SITE_ROOT => $conf{SITE_ROOT});
-    $template->param(MESSAGE => $message);
-    show_page "404 Not Found", "Not found", $template->output;
-}
-
-
-### markup rendering ###
-
-sub handle_blocks {
-    my ($lines) = @_;
-    my @blocks = ();
-    my @block = ();
-    my $last = '';
-
-    for (split /^/, $lines) {
-        if (/^\s{4,}/) {
-            # four or more spaces indicates rawtext
-            if ($last ne 'code') {
-                if (@block) { push @blocks, join('', @block); }
-                @block = ();
-                $last = 'code';
-            }
-            push @block, $_;
-        } elsif (/^-{3,}$/) {
-            # three or more dashes is a horizontal line
-            if (@block) { push @blocks, join('', @block); }
-            @block = ();
-            $last = 'line';
-            push @block, $_;
-        } elsif (/^={2}/) {
-            # two or more equals signs indicates a header
-            if (@block) { push @blocks, join('', @block); }
-            @block = ();
-            $last = 'header';
-            push @block, $_;
-        } elsif (/^\*\s/) {
-            # * is bullet list
-            if ($last ne 'ul') {
-                if (@block) { push @blocks, join('', @block); }
-                @block = ();
-                $last = 'ul';
-            }
-            push @block, $_;
-        } elsif (/^#\s/) {
-            # * is ordered list
-            if ($last ne 'ol') {
-                if (@block) { push @blocks, join('', @block); }
-                @block = ();
-                $last = 'ol';
-            }
-            push @block, $_;
-        } elsif (/^$/) {
-            # blank line separates paragraphs
-            if (@block) { push @blocks, join('', @block); }
-            @block = ();
-            $last = '';
-        } else {
-            # lines are paragraphs
-            if ($last ne 'p') {
-                if (@block) { push @blocks, join('', @block); }
-                @block = ();
-                $last = 'p';
-            }
-            push @block, $_;
-        }
-    }
-
-    if (@block) { push @blocks, join('', @block); }
-
-    return @blocks;
-}
-
-sub escape_html {
-    my ($block) = @_;
-
-    # avoid getting boned in exciting ways by HTML
-    $block =~ s/&/&amp;/g;
-    $block =~ s/</&lt;/g;
-    $block =~ s/>/&gt;/g;
-
-    return $block;
-}
-
-sub hash_inline {
-    my ($inlines, $text) = @_;
-    my $hash = md5_hex($text);
-    $inlines->{$hash} = $text;
-    return qq([[inline:$hash]]);
-}
-
-sub render_inlines {
-    my ($block) = @_;
-
-    $block = escape_html $block;
-
-    # some things need to be taken out entirely before rendering is done.
-    my %inlines;
-
-    # save off the <code> stuff so it doesn't get mangled
-    $block =~ s/`([^\s](?:.*?[^\s])?)`/
-        hash_inline(\%inlines, "<code>$1<\/code>")
-    /gse;
-
-    # save off MathJAX stuff too
-    $block =~ s/\$\$(.*?)\$\$/hash_inline(\%inlines, "\$\$$1\$\$")/gse;
-    $block =~ s/\\\[(.*?)\\\]/hash_inline(\%inlines, "\\[$1\\]")/gse;
-    $block =~ s/\\\((.*?)\\\)/hash_inline(\%inlines, "\\($1\\)")/gse;
-
-    # nice dashes
-    $block =~ s/--/&mdash;/g;
-    $block =~ s/(^|\s)-(\s|$)/$1&ndash;$2/g;
-
-    # strong before em
-    $block =~ s/\*\*([^\s](?:.*?[^\s])?)\*\*/<strong>$1<\/strong>/gs;
-    $block =~ s/\*([^\s](?:.*?[^\s])?)\*/<em>$1<\/em>/gs;
-
-    # nice quotes
-    $block =~ s/(^|\s)"([^\s](?:.*?[^\s])?)"(\s|$)/$1&ldquo;$2&rdquo;$3/gs;
-    $block =~ s/(^|\s)'([^\s](?:.*?[^\s])?)'(\s|$)/$1&lsquo;$2&rsquo;$3/gs;
-    $block =~ s/'/&apos;/g;
-
-    # times symbol
-    $block =~ s/(\d\s*)[xX](\s*\d)/$1&times;$2/gs;
-
-    # ellipses
-    $block =~ s/\.{3}/&#8230;/g;
-
-    # TM, C, R
-    $block =~ s/\(TM\)/&#8482;/gi;
-    $block =~ s/\(C\)/&#169;/gi;
-    $block =~ s/\(R\)/&#174;/gi;
-
-    # images
-    $block =~ s/\{\{(.+?)\|(.+?)\}\}/<img src="$1" title="$2" alt="$2" \/>/g;
-
-    # links
-    $block =~ s/\[\[(.+?)(?:\|(.+?))?\]\]/render_link($1, $2)/ge;
-
-    # re-insert inlines
-    $block =~ s/\[\[inline:(.*?)\]\]/$inlines{$1}/ge;
-
-    return $block;
-}
-
-sub render_link {
-    my ($url, $text) = @_;
-
-    if ($url =~ /^(\d+)$/) {
-        # is it a numeric id? if so, convert to title
-        if (my $title = get_title $1) {
-            $text //= $title;
-            return qq(<a href=") . $conf{SITE_ROOT} .
-                qq(/$title.html" class="internal">$text</a>);
-        } elsif (defined $text) {
-            return qq(&#91;&#91;$url|$text&#93;&#93;);
-        } else {
-            return qq(&#91;&#91;$url&#93;&#93;);
-        }
-    } elsif ($url =~ TITLE_PATTERN) {
-        # if it's a textual title, determine if it's broken or not
-        $text //= $url;
-        if (get_id $url) {
-            return qq(<a href=") . $conf{SITE_ROOT} .
-                qq(/$url.html" class="internal">$text</a>);
-        } else {
-            return qq(<a href=") . $conf{SITE_ROOT} .
-                qq(/$url.html" class="internal broken">$text</a>);
-        }
-    } elsif ($url =~ /^inline:(.*)$/) {
-        # a hashed inline; just pass it through
-        return qq([[$url]]);
-    } elsif ($url =~ /^user:(.*?)(?:!(.*))?$/) {
-        if (defined $2) {
-            return render_link("User/$1", qq($1<img src="http://gravatar.com/avatar/$2?s=16&d=retro&f=y" alt="$1" class="tripicon" />));
-        } else {
-            return render_link("User/$1", $1);
-        }
-    } elsif ($url =~ /^date:(\d+)$/) {
-        # auto-render a date
-        return render_time($1);
-    } elsif ($url =~ /^doi:(.*)$/) {
-        # auto-render a DOI
-        $text //= $url;
-        return qq(<a href="http://doi.org/$1" rel="nofollow" 
-                     class="external doi">$text</a>);
-    } elsif ($url =~ /^mailto:(.*)$/) {
-        # email address
-        return qq(<a href="$url">$1</a>);
-    } else {
-        # just output it
-        $text //= $url;
-        return qq(<a rel="nofollow" href="$url" class="external">$text</a>);
-    }
-}
-
-sub preprocess_link {
-    my ($url, $text) = @_;
-
-    # is it a named title?
-    if ($url =~ TITLE_PATTERN and my $id = get_id $url) {
-        # rewrite that
-        $text //= $url;
-        return qq([[$id|$text]]);
-    } elsif ($url =~ /^date::now$/) {
-        return '[[date:' . time . ']]';
-    } else {
-        # pass through
-        if (defined $text) {
-            return qq([[$url|$text]]);
-        } else {
-            return qq([[$url]]);
-        }
-    }
-}
-
-sub generate_signature {
-    my ($username) = @_;
-    my $time = time;
-
-    return qq(--[[user:$username]] on [[date:$time]]);
-}
-
-sub preprocess_entry {
-    my ($content, $username) = @_;
-
-    # this should do two things: compile a list of links
-    # this page makes to other pages, and rewrite links
-    # appropriately.
-    
-    # fix newlines
-    $content =~ s/\r\n|\r/\n/g;
-    my @links;
-    my @blocks;
-
-    for (handle_blocks $content) {
-        while (/\[\[(.+?)(\|.+?)?\]\]/g) {
-            if (my $id = get_id $1) {
-                push @links, $id;
-            }
-        }
-        if (!/^\s{4,}/) {
-            s/\[\[(.+?)(?:\|(.+?))?\]\]/preprocess_link($1, $2)/ge;
-            s/~~~~/generate_signature($username)/ge;
-        }
-        push @blocks, $_;
-    }
-
-    @links = uniq(@links);
-    return join("\n", @blocks), \@links;
-}
-
-sub generate_partial {
-    my ($header) = @_;
-    $header =~ s/[\s]/_/g;
-    $header =~ s/[^\w]//g;
-    return $header;
-}
-
-sub render_entry {
-    my ($content) = @_;
-    my @output;
-    my @sstack; while ($#sstack < 1) { push @sstack, 0; }
-
-    for (handle_blocks $content) {
-        if (/^(={2,6})\s*(.*?)\s*(=*)\s*$/) {
-            my $level = length $1;
-            my $text = render_inlines $2;
-            my $partial = generate_partial $2;
-            while ($#sstack >= $level) {
-                push @output, pop(@sstack);
-            }
-            while ($#sstack < $level) {
-                push @sstack, qq(</section>);
-                push @output, qq(<section>);
-            }
-            push @output, qq(<h$level id="$partial">
-                $text
-                <a class="partial" href="#$partial">#</a>
-            </h$level>);
-        } elsif (/^\s{4,}/) {
-            my $prefix = "<pre><code>";
-            while (/^\s{4,}(.*)$/gm) {
-                push @output, $prefix . escape_html($1);
-                $prefix = '';
-            }
-            push @output, "</code></pre>";
-        } elsif (/^-{3,}$/) {
-            push @output, "<hr>";
-        } elsif (/^\*\s/) {
-            push @output, "<ul>";
-            while (/^\*\s+(.*)$/gm) {
-                push @output, "<li>" . render_inlines($1) . "</li>";
-            }
-            push @output, "</ul>";
-        } elsif (/^#\s/) {
-            push @output, "<ol>";
-            while (/^#\s+(.*)$/gm) {
-                push @output, "<li>" . render_inlines($1) . "</li>";
-            }
-            push @output, "</ol>";
-        } elsif (/^bq(?:\(([\w\s]*)\))?\.\s+(.*)$/s) {
-            push @output, qq(<blockquote class=") . escape_html($1) . qq(">) .
-                render_inlines($2) . qq(</blockquote>);
-        } elsif (/^p(?:\(([\w\s]*)\))?\.\s+(.*)$/s) {
-            push @output, qq(<p class=") . escape_html($1) . qq(">) .
-                render_inlines($2) . qq(</p>);
-        } else {
-            push @output, "<p>" . render_inlines($_) . "</p>";
-        }
-    }
-
-    while ($#sstack > 1) {
-        push @output, pop(@sstack);
-    }
-
-    return join "\n", @output;
-}
+my $db = M::DB->new($conf{DATABASE});
+my $r = M::Render->new(
+    database => $db,
+    site_root => $conf{SITE_ROOT},
+    timezone => $conf{TIMEZONE});
 
 
 ### request handling ###
 
-sub edit_entry {
-    my ($slug) = @_;
-
-    my $title = $slug;
-    my $content = '';
-    my $username = $q->cookie('username');
-    my $base;
-    my $id;
-    my @errors;
-    if (my $entry = get_entry $slug) {
-        $id = $entry->{pageid};
-        $title = $entry->{title};
-        $content = $entry->{content};
-        $base = $entry->{revisionid};
-    }
-
-    if ($q->request_method eq 'POST') {
-        my $oldcontent = $content;
-        my $oldtitle = $title;
-        my $oldbase = $base;
-        $base = $q->param('base');
-        $username = $q->param('username');
-        $content = $q->param('content');
-        $title = $q->param('title');
-
-        if ($title !~ TITLE_PATTERN) {
-            # validate title format
-            push @errors, { message => 
-                "title must be made of letters and numbers and must begin " .
-                "with a letter" };
-        } elsif ($oldtitle ne $title and get_id($title)) {
-            # validate duplicates
-            push @errors, { message =>
-                "a page with named '$title' already exists" };
-        } elsif ($username !~ USERNAME_PATTERN) {
-            # validate username format
-            push @errors, { message =>
-                "a username must be made of one or more letters and numbers " .
-                "and must begin with a letter" };
-        } elsif ($base != $oldbase) {
-            # validate no conflicting edit
-            push @errors, { message =>
-                "another user edited this page while you were typing. Please " .
-                "make a copy of your changes and " .
-                qq(<a href="$slug.edit">click here to start over</a>.) }
-        } else {
-            # validation passed, save and redirect
-            $username =~ USERNAME_PATTERN;
-            my $name = $1;
-            my $ip = $q->remote_addr;
-
-            my $tripname;
-            if (defined $2) {
-                $tripname = $name . "!" . md5_hex($2);
-            } else {
-                $tripname = $name;
-            }
-
-            my $fullname = $tripname . "@" . $q->remote_addr;
-            my $cookie = CGI->cookie(
-                -name => 'username',
-                -value => $username);
-            my ($pcontent, $links) = preprocess_entry($content, $tripname);
-
-            put_entry($id, $title, $fullname, $pcontent, $links, $base);
-
-            my $template = HTML::Template->new(
-                filename => 'templates/editok.html',
-                die_on_bad_params => 0);
-            $template->param(TITLE => $title);
-            $template->param(SITE_ROOT => $conf{SITE_ROOT});
-
-            print $q->header("text/html; charset=utf-8", "200 OK"
-                -cookie => $cookie);
-            print $template->output;
-            return;
-        }
-    }
-
-    my $template = HTML::Template->new(
-        filename => 'templates/edit.html',
-        die_on_bad_params => 0);
-
-    $template->param(ID => $id);
-    $template->param(SITE_ROOT => $conf{SITE_ROOT});
-    $template->param(SLUG => $slug);
-    $template->param(ERRORS => \@errors);
-    $template->param(TITLE => $title);
-    $template->param(BASE => $base);
-    $template->param(USERNAME => $username);
-    $template->param(IP => $q->remote_addr);
-    $template->param(CONTENT => $content);
-    show_page("200 OK", "Editing $slug", $template->output);
-}
-
 sub ref_list {
     my ($slug) = @_;
 
-    if (my $title = get_title $slug) {
+    if (my $title = $db->get_title($slug)) {
         my @links = map { {
             ID => $_->{pageid},
             TITLE => $_->{title}, 
             SITE_ROOT => $conf{SITE_ROOT},
-        } } get_links($slug);
+        } } $db->get_links($slug);
         my $template = HTML::Template->new(
             filename => 'templates/links.html',
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
         $template->param(LINKS => \@links);
-        show_page("200 OK", "Links to $title", $template->output);
+        $r->show_page("200 OK", "Links to $title", $template->output);
     } else {
-        four_oh_four "No such entry '$slug'.";
+        $r->four_oh_four("No such entry '$slug'.");
     }
-}
-
-sub render_username {
-    my ($editor) = @_;
-    if ($editor =~ /^([^@]*)@([^@]*)$/) {
-        return render_link("user:$1");
-    }
-    return render_link($editor);
-}
-
-sub render_time {
-    my ($timestamp) = @_;
-    return time2str("%A the %o, %Om %Y, at %X %Z", $timestamp, $conf{TIMEZONE});
 }
 
 sub show_entry {
     my ($slug) = @_;
     
-    my $on = $q->param('on');
-    if (my $page = get_entry($slug, $on)) {
+    my $on = $r->q->param('on');
+    if (my $page = $db->get_entry($slug, $on)) {
         my $template = HTML::Template->new(
             filename => 'templates/entry.html',
             die_on_bad_params => 0);
         $template->param(TITLE => $page->{title});
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
-        $template->param(CONTENT => render_entry($page->{content}));
-        $template->param(USERLINK => render_username($page->{editor}));
-        $template->param(EDITED => render_time($page->{edited}));
+        $template->param(CONTENT => $r->render_entry($page->{content}));
+        $template->param(USERLINK => $r->render_username($page->{editor}));
+        $template->param(EDITED => $r->render_time($page->{edited}));
         $template->param(ID => $page->{pageid});
-        show_page("200 OK", $page->{title}, $template->output);
+        $r->show_page("200 OK", $page->{title}, $template->output);
     } else {
-        print $q->redirect("$slug.edit");
+        print $r->q->redirect($conf{SITE_ROOT} . "/e/" . $slug);
     }
 }
 
-sub show_recent {
-    my @edits = map { {
-        TITLE => $_->{title},
-        USERLINK => render_username($_->{editor}),
-        EDITED => $_->{edited},
-        FORMATTEDTIME => render_time($_->{edited}),
-        SITE_ROOT => $conf{SITE_ROOT},
-    } } get_edits;
-
-    my $template = HTML::Template->new(
-        filename => 'templates/recent.html',
-        die_on_bad_params => 0);
-    $template->param(SITE_ROOT => $conf{SITE_ROOT});
-    $template->param(EDITS => \@edits);
-    show_page("200 OK", "Recently edited pages", $template->output);
-}
-
 sub show_all {
-    print $q->header("text/plain; charset=utf-8");
-    for (get_all_pages) {
+    print $r->q->header("text/plain; charset=utf-8");
+    for ($db->get_all_pages) {
         print $_->{pageid} . " " . $_->{title} . "\n";
     }
 }
@@ -689,40 +84,37 @@ sub show_all {
 sub dump_entry {
     my ($slug) = @_;
 
-    if (my $page = get_entry $slug) {
-        print $q->header("text/plain; charset=utf-8");
+    if (my $page = $db->get_entry($slug)) {
+        print $r->q->header("text/plain; charset=utf-8");
         print $page->{content};
     } else {
-        four_oh_four
+        $r->four_oh_four(
             "No such entry '$slug'. " .
-            "<a href='$slug.edit'>Create it?</a>";
+            "<a href='" . $conf{SITE_ROOT} .
+            qq(/e/$slug'>Create it?</a>));
     }
 }
 
-$_ = (substr($q->path_info(), 1) or '1.html');
+$_ = (substr($r->q->path_info(), 1) or '1.html');
 if (/^_([^\s.]*)$/) {
-    if ($1 eq "recent") {
-        show_recent;
-    } elsif ($1 eq "all") {
+    if ($1 eq "all") {
         show_all;
     } else {
-        four_oh_four "Unknown special page '$1'";
+        $r->four_oh_four("Unknown special page '$1'");
     }
 } elsif (/^([^\s.]*)\.([^\s.]*)$/) {
-    if ($2 eq "edit") {
-        edit_entry $1;
-    } elsif ($2 eq "links") {
+    if ($2 eq "links") {
         ref_list $1;
     } elsif ($2 eq "html") {
         show_entry $1;
     } elsif ($2 eq "txt") {
         dump_entry $1;
     } else {
-        four_oh_four "Unknown mode '$2'";
+        $r->four_oh_four("Unknown mode '$2'");
     }
 } elsif (TITLE_PATTERN) {
-    print $q->redirect("$_.html");
+    print $r->q->redirect("$_.html");
 } else {
-    four_oh_four "Unknown page '$_'";
+    $r->four_oh_four("Unknown page '$_'");
 }
 

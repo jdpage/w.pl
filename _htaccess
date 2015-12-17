@@ -4,7 +4,12 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
+  RewriteRule "^e/(.*)$" "e.pl/$1" [L]
+
+  RewriteRule "^f/(.*)$" "f.pl/$1" [L]
+
   RewriteCond "%{REQUEST_FILENAME}" "conf\.pl$" [OR]
+  RewriteCond "%{REQUEST_FILENAME}" "\.pm$" [OR]
   RewriteCond "%{REQUEST_FILENAME}" !-f
   RewriteRule "^(.*)$" "w.pl/$1" [L]
 </IfModule>
