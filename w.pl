@@ -5,9 +5,6 @@ use strict;
 use warnings;
 use diagnostics;
 
-use constant TIMEZONE => 'EST';
-use constant DATABASE => '/home/protected/books.sqlite3';
-use constant SITE_ROOT => 'http://sleepingcyb.org/books';
 use constant TITLE_PATTERN => qr/^[a-z][a-z0-9]*(?:\/[a-z][a-z0-9]*)*$/i;
 use constant USERNAME_PATTERN => qr/^([a-z][a-z0-9]*)(?:#(.*))?$/i;
 
@@ -23,8 +20,11 @@ if (defined $ENV{DOCUMENT_ROOT}) {
     eval "use CGI::Carp 'fatalsToBrowser'";
 }
 
+# load configuration
+my %conf = do 'conf.pl';
+
 my $q = CGI->new;
-my $database = DATABASE;
+my $database = $conf{DATABASE};
 my $db = DBI->connect("DBI:SQLite:dbname=$database") or die $DBI::errstr;
 
 
@@ -181,7 +181,7 @@ sub show_page {
         filename => 'templates/main.html',
         die_on_bad_params => 0);
     $template->param(TITLE => $title);
-    $template->param(SITE_ROOT => SITE_ROOT);
+    $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(BODY => $body);
     print $q->header("text/html; charset=utf-8", $status);
     print $template->output;
@@ -192,7 +192,7 @@ sub four_oh_four {
     my $template = HTML::Template->new(
         filename => 'templates/404.html',
         die_on_bad_params => 0);
-    $template->param(SITE_ROOT => SITE_ROOT);
+    $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(MESSAGE => $message);
     show_page "404 Not Found", "Not found", $template->output;
 }
@@ -343,7 +343,7 @@ sub render_link {
         # is it a numeric id? if so, convert to title
         if (my $title = get_title $1) {
             $text //= $title;
-            return qq(<a href=") . SITE_ROOT .
+            return qq(<a href=") . $conf{SITE_ROOT} .
                 qq(/$title.html" class="internal">$text</a>);
         } elsif (defined $text) {
             return qq(&#91;&#91;$url|$text&#93;&#93;);
@@ -354,10 +354,10 @@ sub render_link {
         # if it's a textual title, determine if it's broken or not
         $text //= $url;
         if (get_id $url) {
-            return qq(<a href=") . SITE_ROOT .
+            return qq(<a href=") . $conf{SITE_ROOT} .
                 qq(/$url.html" class="internal">$text</a>);
         } else {
-            return qq(<a href=") . SITE_ROOT .
+            return qq(<a href=") . $conf{SITE_ROOT} .
                 qq(/$url.html" class="internal broken">$text</a>);
         }
     } elsif ($url =~ /^inline:(.*)$/) {
@@ -583,7 +583,7 @@ sub edit_entry {
                 filename => 'templates/editok.html',
                 die_on_bad_params => 0);
             $template->param(TITLE => $title);
-            $template->param(SITE_ROOT => SITE_ROOT);
+            $template->param(SITE_ROOT => $conf{SITE_ROOT});
 
             print $q->header("text/html; charset=utf-8", "200 OK"
                 -cookie => $cookie);
@@ -597,7 +597,7 @@ sub edit_entry {
         die_on_bad_params => 0);
 
     $template->param(ID => $id);
-    $template->param(SITE_ROOT => SITE_ROOT);
+    $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(SLUG => $slug);
     $template->param(ERRORS => \@errors);
     $template->param(TITLE => $title);
@@ -615,13 +615,13 @@ sub ref_list {
         my @links = map { {
             ID => $_->{pageid},
             TITLE => $_->{title}, 
-            SITE_ROOT => SITE_ROOT,
+            SITE_ROOT => $conf{SITE_ROOT},
         } } get_links($slug);
         my $template = HTML::Template->new(
             filename => 'templates/links.html',
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
-        $template->param(SITE_ROOT => SITE_ROOT);
+        $template->param(SITE_ROOT => $conf{SITE_ROOT});
         $template->param(LINKS => \@links);
         show_page("200 OK", "Links to $title", $template->output);
     } else {
@@ -639,7 +639,7 @@ sub render_username {
 
 sub render_time {
     my ($timestamp) = @_;
-    return time2str("%A the %o, %Om %Y, at %X %Z", $timestamp, TIMEZONE);
+    return time2str("%A the %o, %Om %Y, at %X %Z", $timestamp, $conf{TIMEZONE});
 }
 
 sub show_entry {
@@ -651,7 +651,7 @@ sub show_entry {
             filename => 'templates/entry.html',
             die_on_bad_params => 0);
         $template->param(TITLE => $page->{title});
-        $template->param(SITE_ROOT => SITE_ROOT);
+        $template->param(SITE_ROOT => $conf{SITE_ROOT});
         $template->param(CONTENT => render_entry($page->{content}));
         $template->param(USERLINK => render_username($page->{editor}));
         $template->param(EDITED => render_time($page->{edited}));
@@ -668,13 +668,13 @@ sub show_recent {
         USERLINK => render_username($_->{editor}),
         EDITED => $_->{edited},
         FORMATTEDTIME => render_time($_->{edited}),
-        SITE_ROOT => SITE_ROOT,
+        SITE_ROOT => $conf{SITE_ROOT},
     } } get_edits;
 
     my $template = HTML::Template->new(
         filename => 'templates/recent.html',
         die_on_bad_params => 0);
-    $template->param(SITE_ROOT => SITE_ROOT);
+    $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(EDITS => \@edits);
     show_page("200 OK", "Recently edited pages", $template->output);
 }
