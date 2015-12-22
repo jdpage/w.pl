@@ -1,27 +1,41 @@
-<header>
-    <h1><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.links">
-        <TMPL_VAR NAME=TITLE ESCAPE=HTML>
-    </a></h1>
-</header>
-<article>
-    <TMPL_VAR NAME=CONTENT>
-</article>
-<footer>
-    <p>
-        Last edited
-        by <TMPL_VAR NAME=USERLINK>
-        on <span class='date'><TMPL_VAR NAME=EDITED></span>.
-    </p>
-    <nav>
-        <ul>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/e/<TMPL_VAR NAME=TITLE ESCAPE=HTML>">
-                Edit this page</a></li>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.txt">
-                Text-only version</a></li>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=ID>.html">Permalink</a></li>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">Recent page edits</a></li>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/.html">Recent site edits</a></li>
-        </ul>
-    </nav>
-</footer>
+<body class="entry">
+	<header>
+		<h1><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.links">
+			<TMPL_VAR NAME=TITLE ESCAPE=HTML>
+		</a></h1>
+		<nav>
+			<ul>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/e/<TMPL_VAR NAME=TITLE ESCAPE=HTML>">
+					Edit this page</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.txt">
+					Text-only version</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=ID>.html">Permalink</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">Recent page edits</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/.html">Recent site edits</a></li>
+			</ul>
+		</nav>
+	</header>
+	<article>
+		<TMPL_VAR NAME=CONTENT>
+	</article>
+	<footer>
+		<p>
+			Last edited
+			by <TMPL_VAR NAME=USERLINK>
+			on <span class='date'><TMPL_VAR NAME=EDITED></span>.
+		</p>
+		<nav>
+			<ul>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/e/<TMPL_VAR NAME=TITLE ESCAPE=HTML>">
+					Edit this page</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.txt">
+					Text-only version</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=ID>.html">Permalink</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">Recent page edits</a></li>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/f/.html">Recent site edits</a></li>
+			</ul>
+		</nav>
+	</footer>
+</body>
