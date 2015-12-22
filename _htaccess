@@ -1,5 +1,8 @@
 Options +FollowSymLinks
 Options -Indexes
+Options +ExecCGI
+
+AddHandler cgi-script .pl
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
