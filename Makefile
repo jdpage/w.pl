@@ -11,4 +11,4 @@ test:
 
 deploy:
 	cd src; cp -f _htaccess .htaccess 
-	cd src; rsync -avz --delete . ${DEPLOY_DIR}
+	cd src; rsync -avz --delete --exclude "*.swp" . ${DEPLOY_DIR}
