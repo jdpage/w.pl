@@ -8,8 +8,6 @@ AddHandler cgi-script .pl
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  RewriteBase /~jdpage/books
-
   RewriteRule "^e/(.*)$" "e.pl/$1" [L]
 
   RewriteRule "^f/(.*)$" "f.pl/$1" [L]
