@@ -1,357 +1,89 @@
 body {
-	background: #bfb3a6;
-}
-
-blockquote,
-pre {
-	position: relative;
-}
-
-article p code {
-	background: #f4f2f1;
-	border-radius: 3px;
-}
-
-blockquote, pre {
-	box-sizing: border-box;
-}
-
-blockquote {
-	border-left: 4px solid #6F5F4F;
-	background: #e9e5e2;
-}
-
-pre {
-	overflow: auto;
-	/*max-height: 15.2em;*/
-	border-left: 4px solid #6F5F4F;
-	background: repeating-linear-gradient(
-		to bottom,
-		transparent 0,
-		transparent 1.4em,
-		#f4f2f1 1.4em,
-		#f4f2f1 2.8em) 0 -0.7em,
-		#eeebea;
-}
-
-/*
- * Magic link icons
- */
-
-article a::after {
-	font-family: 'FontAwesome';
-	font-size: 60%;
-	vertical-align: middle;
-}
-
-/* for links to edit a page */
-/* TODO: edit links should have a class. use that instead of this selector. */
-article a.internal[href*='/e/']::after {
-	content: ' \f040'; /* pencil icon */
-}
-
-/* for backlink list pages */
-/* TODO: links links should have a class. use that instead of this selector. */
-article a.internal[href$='.links']::after {
-	content: ' \f0c1'; /* chainlinks icon */
-}
-
-/* for email links */
-article a[href^='mailto:']::after {
-	content: ' \f003'; /* envelope icon */
-}
-
-/* for links to external websites */
-article a.external::after {
-	content: ' \f08e'; /* arrow icon */
-}
-
-/* for DOI links */
-article a.external.doi::after {
-	content: ' \f05a'; /* info icon */
-}
-
-/* for links to external pdf files */
-article a.external[href$='.pdf']::after {
-	content: ' \f1c1';
-}
-
-/* for links to external spreadsheet files */
-article a.external[href$='.xls']::after,
-article a.external[href$='.xlsx']::after,
-article a.external[href$='.ods']::after,
-article a.external[href$='.csv']::after {
-	content: ' \f1c3';
-}
-
-/* for links to external word processor files */
-article a.external[href$='.doc']::after,
-article a.external[href$='.docx']::after,
-article a.external[href$='.odf']::after,
-article a.external[href$='.rtf']::after {
-	content: ' \f1c2';
-}
-
-/* for links to external slideshow files */
-article a.external[href$='.ppt']::after,
-article a.external[href$='.pptx']::after,
-article a.external[href$='.ppts']::after,
-article a.external[href$='.uop']::after {
-	content: ' \f1c4';
-}
-
-/* for links to external audio files */
-article a.external[href$='.mp3']::after,
-article a.external[href$='.m4a']::after,
-article a.external[href$='.ogg']::after,
-article a.external[href$='.wma']::after,
-article a.external[href$='.mid']::after,
-article a.external[href$='.wav']::after {
-	content: ' \f1c7';
-}
-
-/* for links to external video files */
-article a.external[href$='.mp4']::after,
-article a.external[href$='.avi']::after,
-article a.external[href$='.flv']::after,
-article a.external[href$='.wmv']::after,
-article a.external[href$='.mov']::after,
-article a.external[href$='.3gp']::after {
-	content: ' \f1c8';
-}
-
-/* for links to external image files */
-article a.external[href$='.jpg']::after,
-article a.external[href$='.jpeg']::after,
-article a.external[href$='.png']::after,
-article a.external[href$='.gif']::after,
-article a.external[href$='.svg']::after,
-article a.external[href$='.bmp']::after {
-	content: ' \f1c5';
-}
-
-/* for links to external code files */
-article a.external[href$='.c']::after,
-article a.external[href$='.cpp']::after,
-article a.external[href$='.h']::after,
-article a.external[href$='.tex']::after,
-article a.external[href$='.py']::after,
-article a.external[href$='.pl']::after,
-article a.external[href$='.praat']::after,
-article a.external[href$='.rb']::after,
-article a.external[href$='.rs']::after,
-article a.external[href$='.sh']::after,
-article a.external[href$='.java']::after {
-	content: ' \f1c9';
-}
-
-/* for links to external raw text files */
-article a.external[href$='.txt']::after,
-article a.external[href$='.md']::after  {
-	content: ' \f0f6';
-}
-
-/* for links to external archive files */
-article a.external[href$='.zip']::after,
-article a.external[href$='.gz']::after,
-article a.external[href$='.tar']::after,
-article a.external[href$='.7z']::after,
-article a.external[href$='.bz2']::after,
-article a.external[href$='.rar']::after {
-	content: ' \f1c6';
-}
-
-a.internal img {
-	margin-left: 0.2em;
-	margin-bottom: -3px;
+	margin: 0;
 }
 
 header {
-	background: #483D39;
-	text-align: center;
-	padding: 40px 0;
-	box-shadow: 0 0 200px 100px rgba(72, 61, 57, 0.5); 
+    color: white;
+    background-color: #303030;
 }
 
-header h1 {
-	display: inline-block;
-	margin: 0 1em;
+header a {
+    color: #80c0ff;
 }
 
-header h1 a {
-	color: #eee;
-	text-shadow:
-		0px 1px #444F61,
-		0px 2px #444F61,
-		1px 3px #444F61,
-		1px 4px #444F61,
-		2px 5px #444F61;
-	text-decoration: none;
-	outline: none;
-	transition: color 0.2s ease;
+header a:visited {
+    color: #ff80ff;
 }
 
-header h1::after {
-	content: '';
-	display: block;
-	width: 100%;
-	height: 2px;
-	margin: 0 auto;
-	background: linear-gradient(to right, transparent 0%, #444F61 40%, #444F61 60%, transparent 100%);
-}
-
-header h1 a:hover {
-	color: #FF7B50;
-}
-
-header nav {
-	text-align: center;
-	font-size: 75%;
-	color: #ccc;
-	margin-top: 1.5em;
-	margin-bottom: -2.5em;
-}
-
-header nav li {
-	display: inline;
-	padding: 0 1em;
-}
-
-header nav li a,
-header nav li a:visited {
-	color: #ccc;
-}
-
-footer > p {
-	text-align: center;
-	font-size: 75%;
-	color: #666;
-	margin-bottom: 80px;
-}
-
-footer > p a.internal img {
-	width: 12px;
-	height: 12px;
-	vertical-align: top;
-}
-
-footer nav {
-	box-sizing: border-box;
-	margin: 0 auto;
-	width: 700px;
-	text-align: center;
-	font-size: 75%;
-	background: #483D39;
-	color: #ccc;
-	padding: 0.5em;
-	padding-bottom: 3em;
-}
-
-footer nav li {
-	display: inline;
-	padding: 0 1em;
-}
-
-footer nav li a,
-footer nav li a:visited {
-	color: #ccc;
+footer {
+    border-top: 2px solid #303030;
+    padding: 1rem 6rem 6rem;
 }
 
 article {
-	box-sizing: border-box;
-	background: #eee;
-	max-width: 700px;
-	margin: 0 auto;
-	padding: 3em;
+    margin: 1rem 6rem;
+    width: 37rem;
 }
 
-/*
- * Floating anchors for sections
- */
+h1 a {
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid white;
+}
 
 a.partial {
-	font-size: 0;
-	text-decoration: none;
-	display: inline-block;
-	position: absolute;
-	left: 0;
-	top: 50%;
-	margin-top: -7px;
-	opacity: 0.5;
-	transition: opacity 0.2s ease;
+    vertical-align: super;
+    font-size: 50%;
 }
 
-a.partial:hover {
-	opacity: 1.0;
+p, blockquote {
+    text-indent: 2em;
 }
 
-h2 a.partial::before,
-h3 a.partial::before,
-h4 a.partial::before {
-	font-family: 'FontAwesome';
-	content: '\f13d'; /* anchor icon */
-	font-weight: normal;
-	font-size: 14px;
-	margin-left: -2em;
+p.error {
+    color: red;
 }
 
-/*
- * Decorators on blockquotes and code blocks
- */
-
-blockquote::after, pre::after {
-	font-family: 'FontAwesome';
-	color: #d4ccc4;
-	display: block;
-	font-size: 32px;
-	position: absolute;
-	bottom: -4px;
-	right: -4px;
-	font-style: normal;
-	pointer-events: none;
+footer p {
+    text-indent: 0;
 }
 
-blockquote::after {
-	content: '\f10e'; /* a quotation marks icon */
+pre, blockquote, code {
+    background-color: #dddddd;
 }
 
-pre::after {
-	/*content: '\f121'; /* an angle brackets icon */
+ul {
+    list-style-type: square;
+}
+
+img.tripicon {
+    vertical-align: middle;
+    margin: 2px;
 }
 
 hr {
-	display: block;
-	width: 100%;
-	height: 2px;
-	border-radius: 1px;
-	background: linear-gradient(to right,
-		#999 0%,
-		#888 30%,
-		#888 70%,
-		#999 100%);
-	margin: 0 auto 1.5em auto;
-	border: 0;
+    height: 0;
+    border: 0 solid #303030;
+    border-top-width: 2px;
 }
 
-@media print {
-	header {
-		box-shadow: none;
-	}
-	header h1 a {
-		text-shadow: none;
-		color: #333;
-	}
-	header h1::after {
-		display: none;
-	}
-	blockquote::after, pre::after {
-		display: none;
-	}
-	blockquote, pre {
-		border-left-color: #999;
-	}
-	header nav,
-	footer nav {
-		display: none;
-	}
+a.broken {
+    color: #c00000;
+}
+
+h2 {
+	border-color: #333;
+}
+
+header {
+	padding: 2rem;
+	padding-bottom: 3rem;
+}
+
+header h1 {
+	margin: 0;
+}
+
+header nav {
+	display: none;
 }
