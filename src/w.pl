@@ -69,6 +69,10 @@ sub show_entry {
         $template->param(EDITED => $r->render_time($page->{edited}));
         $template->param(ID => $page->{pageid});
         $r->show_page("200 OK", $page->{title}, $template->output);
+    } elsif ($slug =~ /^\d+$/) {
+        $r->four_oh_four("Invalid permalink '$slug'.");
+    } elsif ($slug !~ TITLE_PATTERN) {
+        $r->four_oh_four("Invalid entry name '$slug'.");
     } else {
         print $r->q->redirect($conf{SITE_ROOT} . "/e/" . $slug);
     }
@@ -87,6 +91,10 @@ sub dump_entry {
     if (my $page = $db->get_entry($slug)) {
         print $r->q->header("text/plain; charset=utf-8");
         print $page->{content};
+    } elsif ($slug =~ /^\d+$/) {
+        $r->four_oh_four("Invalid permalink '$slug'.");
+    } elsif ($slug !~ TITLE_PATTERN) {
+        $r->four_oh_four("Invalid entry name '$slug'.");
     } else {
         $r->four_oh_four(
             "No such entry '$slug'. " .
