@@ -131,28 +131,43 @@ pre, code {
 	font-family: 'Ubuntu Mono', 'Courier New', monospace;
 }
 
+a::after {
+        display: inline-block;
+        margin-left: 0.25em;
+        font-size: 70%;
+        vertical-align: top;
+}
+
 a {
-	color: #5172ae;
+        color: #5172ae;
 }
 
 a:visited {
-	color: #444F61;
+        color: #314468;
 }
 
 a.external {
-	color: #68ae51;
+        color: #68ae51;
 }
 
 a.external:visited {
-	color: #4b6144;
+        color: #3e6831;
+}
+
+a.external::after {
+	content: '\279a';
 }
 
 a.broken {
-	color: #ae5151;
+        color: #ae5151;
 }
 
-a.broken::visited {
-	color: #ae5151;
+a.broken:visited {
+        color: #683131;
+}
+
+a.broken::after {
+	content: '\26d4';
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -164,7 +179,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h2 {
-	border-bottom: 1px solid rgba(255, 123, 80, 0.5);
+	border-bottom: 1px;
+	padding-bottom: -0.1em;
+	margin-bottom: 0.9em;
 }
 
 h4,
@@ -181,9 +198,9 @@ pre {
 	padding: 0.4em 0;
 }
 
-article p {
+article p,
+article li {
 	text-align: justify;
-	/*text-indent: 1em;*/
 }
 
 article p code {
@@ -211,20 +228,20 @@ blockquote em {
 	font-style: normal;
 }
 
-article ol,
-article ul {
+ol,
+ul {
 	margin-left: 2em;
 }
 
-article ul {
-	list-style-type: disc;
+ul {
+	list-style-type: square;
 }
 
-article ol {
+ol {
 	list-style-type: decimal;
 }
 
-article li {
+li {
 	font-weight: normal;
 	letter-spacing: 0.05em;
 	padding: 0.2em 0;
