@@ -8,6 +8,4 @@ after_success:
     - eval `ssh-agent`
     - chmod 600 .travis/deploy_key
     - ssh-add .travis/deploy_key
-    - cd src
-    - mv _htaccess .htaccess
-    - rsync -avz --delete . $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY
+    - make deploy DEPLOY_DIR=$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY
