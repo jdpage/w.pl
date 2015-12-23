@@ -1,11 +1,6 @@
-.PHONY: all test always
+.PHONY: all test
 
-%.pl: always
-	perl -c $@
-
-%.pm: always
-	perl -c $@
-
-all: M/DB.pm M/Const.pm M/Render.pm conf.pl w.pl e.pl f.pl
+all:
+	cd src; find . -iname '*.p?' -exec perl -c {} \;
 
 test: all

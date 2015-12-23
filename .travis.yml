@@ -8,8 +8,5 @@ after_success:
     - eval `ssh-agent`
     - chmod 600 .travis/deploy_key
     - ssh-add .travis/deploy_key
-    - ssh $DEPLOY_USER@$DEPLOY_HOST "mkdir -p $DEPLOY_DIRECTORY/M $DEPLOY_DIRECTORY/templates"
-    - scp *.pl *.css $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY/
-    - scp M/*.pm $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY/M/
-    - scp _htaccess $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY/.htaccess
-    - scp templates/*.html $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY/templates/
+    - mv src/_htaccess src/.htaccess
+    - rsync -avz src . $DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIRECTORY
