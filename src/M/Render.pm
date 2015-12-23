@@ -79,8 +79,8 @@ sub handle_blocks {
             @block = ();
             $last = 'line';
             push @block, $_;
-        } elsif (/^={2}/) {
-            # two or more equals signs indicates a header
+        } elsif (/^#{2}/) {
+            # two or more hash signs indicates a header
             if (@block) { push @blocks, join('', @block); }
             @block = ();
             $last = 'header';
@@ -329,7 +329,7 @@ sub render_entry {
     my @sstack; while ($#sstack < 1) { push @sstack, 0; }
 
     for ($self->handle_blocks($content)) {
-        if (/^(={2,6})\s*(.*?)\s*(=*)\s*$/) {
+        if (/^(#{2,6})\s*(.*)$/) {
             my $level = length $1;
             my $text = $self->render_inlines($2);
             my $partial = $self->generate_partial($2);
