@@ -139,7 +139,7 @@ sub get_links {
     return @links;
 }
 
-sub get_edits {
+sub get_all_edits {
     my ($self) = @_;
     my $pst = $self->{db}->prepare(q(
         select pages.pageid
@@ -152,6 +152,26 @@ sub get_edits {
         limit 100))
         or die $self->{db}->errstr;
     $pst->execute() or die $pst->errstr;
+    my @edits;
+    while (my $row = $pst->fetchrow_hashref) {
+        push @edits, $row;
+    }
+    return @edits;
+}
+
+sub get_edits {
+    my ($self, $slug) = @_;
+    my $id = $self->get_id($slug);
+    my $pst = $self->{db}->prepare(q(
+        select revisions.edited
+             , revisions.editor
+        from revisions join pages
+        on revisions.page = pages.pageid
+        where pages.pageid = ?
+        order by revisions.edited desc
+        limit 100))
+        or die $self->{db}->errstr;
+    $pst->execute($id) or die $pst->errstr;
     my @edits;
     while (my $row = $pst->fetchrow_hashref) {
         push @edits, $row;

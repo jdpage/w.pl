@@ -31,13 +31,14 @@ my $r = M::Render->new(
 
 $_ = substr($r->q->path_info, 1);
 if (/^\.html$/) {
+    # site-wide edits
     my @edits = map { {
         TITLE => $_->{title},
         USERLINK => $r->render_username($_->{editor}),
         EDITED => $_->{edited},
         FORMATTEDTIME => $r->render_time($_->{edited}),
         SITE_ROOT => $conf{SITE_ROOT},
-    } } $db->get_edits;
+    } } $db->get_all_edits;
 
     my $template = HTML::Template->new(
         filename => 'templates/recent.html',
@@ -45,6 +46,24 @@ if (/^\.html$/) {
     $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(EDITS => \@edits);
     $r->show_page("200 OK", "Recently edited pages", $template->output);
+} elsif (/^([^\s.]*)\.html$/ and my $id = $db->get_id($1)) {
+    # per-page edits
+    my $title = $db->get_title($id);
+    my @edits = map { {
+        TITLE => $title,
+        USERLINK => $r->render_username($_->{editor}),
+        EDITED => $_->{edited},
+        FORMATTEDTIME => $r->render_time($_->{edited}),
+        SITE_ROOT => $conf{SITE_ROOT},
+    } } $db->get_edits($id);
+
+    my $template = HTML::Template->new(
+        filename => 'templates/recent.html',
+        die_on_bad_params => 0);
+    $template->param(SITE_ROOT => $conf{SITE_ROOT});
+    $template->param(EDITS => \@edits);
+    $r->show_page("200 OK", "Recent edits to $title", $template->output);
+
 } else {
-    $r->four_oh_four("Unknown page '$_'");
+    $r->four_oh_four("Unknown page 'f/$_'");
 }
