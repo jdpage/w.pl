@@ -1,3 +1,4 @@
+src/.htaccess
 errors.err
 *.swp
 *.sqlite3

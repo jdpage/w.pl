@@ -3,9 +3,11 @@
 DEPLOY_DIR=~/Sites/books
 
 all:
+	cd src; find . -iname '*.p?' -exec perl -MVi::QuickFix -c {} \;
+
+test:
 	cd src; find . -iname '*.p?' -exec perl -c {} \;
 
-test: all
 
 deploy:
 	cd src; cp -f _htaccess .htaccess 

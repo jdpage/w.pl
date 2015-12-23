@@ -6,3 +6,4 @@ requires 'DBD::SQLite';
 requires 'Digest::MD5';
 requires 'HTML::Template';
 requires 'List::MoreUtils';
+requires 'Vi::QuickFix';
