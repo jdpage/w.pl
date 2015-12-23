@@ -163,7 +163,7 @@ a.broken {
 }
 
 a.broken:visited {
-        color: #683131;
+        color: #ae5151;
 }
 
 a.broken::after {
