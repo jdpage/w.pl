@@ -3,10 +3,10 @@
 DEPLOY_DIR=~/Sites/books
 
 all:
-	cd src; find . -iname '*.p?' -exec perl -MVi::QuickFix -c {} \;
+	cd src; find . -iname '*.p?' -exec perl -MVi::QuickFix -Tc {} \;
 
 test:
-	cd src; find . -iname '*.p?' -exec perl -c {} \;
+	cd src; find . -iname '*.p?' -exec perl -Tc {} \;
 
 
 deploy:

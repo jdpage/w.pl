@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/env perl -T
 
 # File: f.pl
 #
@@ -8,6 +8,7 @@ use 5.018;
 use strict;
 use warnings;
 use diagnostics;
+use lib '.';
 
 use M::Const;
 use M::DB;

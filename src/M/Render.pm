@@ -4,6 +4,7 @@ use 5.018;
 use strict;
 use warnings;
 use diagnostics;
+use lib '.';
 
 use M::Const;
 
