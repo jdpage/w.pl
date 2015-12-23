@@ -202,7 +202,7 @@ sub render_link {
         if (my $title = $self->{db}->get_title($1)) {
             $text //= $title;
             return qq(<a href=") . $self->{site_root} .
-                qq(/$title.html" class="internal">$text</a>);
+                qq(/w/$title.html" class="internal">$text</a>);
         } elsif (defined $text) {
             return qq(&#91;&#91;$url|$text&#93;&#93;);
         } else {
@@ -213,10 +213,10 @@ sub render_link {
         $text //= $url;
         if ($self->{db}->get_id($url)) {
             return qq(<a href=") . $self->{site_root} .
-                qq(/$url.html" class="internal">$text</a>);
+                qq(/w/$url.html" class="internal">$text</a>);
         } else {
             return qq(<a href=") . $self->{site_root} .
-                qq(/$url.html" class="internal broken">$text</a>);
+                qq(/w/$url.html" class="internal broken">$text</a>);
         }
     } elsif ($url =~ /^inline:(.*)$/) {
         # a hashed inline; just pass it through
