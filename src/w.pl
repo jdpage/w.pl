@@ -120,7 +120,7 @@ if (/^_([^\s.]*)$/) {
     } else {
         $r->four_oh_four("Unknown mode '$2'");
     }
-} elsif (TITLE_PATTERN) {
+} elsif ($_ =~ TITLE_PATTERN) {
     print $r->q->redirect("$_.html");
 } else {
     $r->four_oh_four("Unknown page '$_'");
