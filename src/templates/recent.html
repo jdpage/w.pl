@@ -1,21 +1,28 @@
-<header>
-    <h1>Recent edits</h1>
-</header>
-<article>
-    <ol><TMPL_LOOP NAME=EDITS>
-        <li>
-            <a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
-                <TMPL_VAR NAME=TITLE ESCAPE=HTML></a>
-            by <TMPL_VAR NAME=USERLINK>
-            on <a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html?on=<TMPL_VAR NAME=EDITED>"
-                  class="date"><TMPL_VAR NAME=FORMATTEDTIME></a>
-        </li>
-    </TMPL_LOOP></ol>
-</article>
-<footer>
-    <nav>
-        <ul>
-            <li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
-        </ul>
-    </nav>
-</footer>
+<body class="recent" lang="en">
+	<header>
+		<h1>Recent edits</h1>
+		<nav>
+			<ul>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
+			</ul>
+		</nav>
+	</header>
+	<article>
+		<ol><TMPL_LOOP NAME=EDITS>
+			<li>
+				<a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
+					<TMPL_VAR NAME=TITLE ESCAPE=HTML></a>
+				by <TMPL_VAR NAME=USERLINK>
+				on <a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html?on=<TMPL_VAR NAME=EDITED>"
+					  class="date"><TMPL_VAR NAME=FORMATTEDTIME></a>
+			</li>
+		</TMPL_LOOP></ol>
+	</article>
+	<footer>
+		<nav>
+			<ul>
+				<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/1.html">Back to home</a></li>
+			</ul>
+		</nav>
+	</footer>
+</body>

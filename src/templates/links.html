@@ -1,10 +1,12 @@
-<header>
-    <h1>Links to <a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
-        <TMPL_VAR NAME=TITLE ESCAPE=HTML></a></h1>
-</header>
-<article>
-<ul><TMPL_LOOP NAME=LINKS>
-    <li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
-        <TMPL_VAR NAME=TITLE ESCAPE=HTML></a></li>
-</TMPL_LOOP></ul>
-</article>
+<body class="links" lang="en">
+	<header>
+		<h1>Links to <a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
+			<TMPL_VAR NAME=TITLE ESCAPE=HTML></a></h1>
+	</header>
+	<article>
+	<ul><TMPL_LOOP NAME=LINKS>
+		<li><a href="<TMPL_VAR NAME=SITE_ROOT>/w/<TMPL_VAR NAME=TITLE ESCAPE=HTML>.html">
+			<TMPL_VAR NAME=TITLE ESCAPE=HTML></a></li>
+	</TMPL_LOOP></ul>
+	</article>
+</body>
