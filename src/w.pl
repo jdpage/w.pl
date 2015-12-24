@@ -1,4 +1,4 @@
-#!/usr/bin/env perl -T
+#!/usr/bin/perl -T
 
 # File: w.pl
 #
