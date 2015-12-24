@@ -139,7 +139,7 @@ pre {
 
 a::after {
   display: inline-block;
-  font-size: 70%;
+  font-size: 80%;
   vertical-align: top;
   text-indent: 0;
   margin-left: 0.25em;
@@ -153,11 +153,13 @@ a:visited {
   color: #314468;
 }
 
-a.external {
+a.external,
+a[href^='mailto:'] {
   color: #68ae51;
 }
 
-a.external:visited {
+a.external:visited,
+a[href^='mailto:']:visited {
   color: #3e6831;
 }
 
@@ -175,6 +177,14 @@ a.broken:visited {
 
 a.broken::after {
   content: '\26d4';
+}
+
+a[href^='mailto:']::after {
+  content: '\2709';
+}
+
+a.doi::after {
+  content: '\2139';
 }
 
 h1, h2, h3, h4, h5, h6 {
