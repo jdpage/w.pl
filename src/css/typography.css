@@ -123,126 +123,126 @@ blockquote {
 /* font, color, and spacing choices */
 
 body {
-	font-family: 'Ubuntu', sans-serif;
-	color: #333;
+  font-family: 'Ubuntu', sans-serif;
+  color: #333;
 }
 
 pre, code {
-	font-family: 'Ubuntu Mono', 'Courier New', monospace;
+  font-family: 'Ubuntu Mono', 'Courier New', monospace;
 }
 
 a::after {
-        display: inline-block;
-        margin-left: 0.25em;
-        font-size: 70%;
-        vertical-align: top;
+  display: inline-block;
+  margin-left: 0.25em;
+  font-size: 70%;
+  vertical-align: top;
 }
 
 a {
-        color: #5172ae;
+  color: #5172ae;
 }
 
 a:visited {
-        color: #314468;
+  color: #314468;
 }
 
 a.external {
-        color: #68ae51;
+  color: #68ae51;
 }
 
 a.external:visited {
-        color: #3e6831;
+  color: #3e6831;
 }
 
 a.external::after {
-	content: '\279a';
+  content: '\279a';
 }
 
 a.broken {
-        color: #ae5151;
+  color: #ae5151;
 }
 
 a.broken:visited {
-        color: #ae5151;
+  color: #ae5151;
 }
 
 a.broken::after {
-	content: '\26d4';
+  content: '\26d4';
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: 'Volkhov', serif;
-	font-weight: bold;
-	letter-spacing: 0.07em;
-	margin: 0.8em 0;
-	position: relative;
+  font-family: 'Volkhov', serif;
+  font-weight: bold;
+  letter-spacing: 0.07em;
+  margin: 0.8em 0;
+  position: relative;
 }
 
 h2 {
-	border-bottom: 1px;
-	padding-bottom: -0.1em;
-	margin-bottom: 0.9em;
+  border-bottom: 1px;
+  padding-bottom: -0.1em;
+  margin-bottom: 0.9em;
 }
 
 h4,
 h5,
 h6 {
-	margin: 0.4em 0;
+  margin: 0.4em 0;
 }
 
 p,
 blockquote,
 pre {
-	font-weight: normal;
-	letter-spacing: 0.05em;
-	padding: 0.4em 0;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  padding: 0.4em 0;
 }
 
 article p,
 article li {
-	text-align: justify;
+  text-align: justify;
 }
 
 article p code {
-	padding: 0.15em 0.5em;
+  padding: 0.15em 0.5em;
 }
 
 strong {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 em {
-	font-style: italic;
+  font-style: italic;
 }
 
 blockquote, pre {
-	margin: 0.8em 0;
-	padding: 0.6em 0 0.6em 2em;
+  margin: 0.8em 0;
+  padding: 0.6em 0 0.6em 2em;
 }
 
 blockquote {
-	font-style: italic;
+  font-style: italic;
 }
 
 blockquote em {
-	font-style: normal;
+  font-style: normal;
 }
 
 ol,
 ul {
-	margin-left: 2em;
+  margin-left: 2em;
 }
 
 ul {
-	list-style-type: square;
+  list-style-type: square;
 }
 
 ol {
-	list-style-type: decimal;
+  list-style-type: decimal;
 }
 
 li {
-	font-weight: normal;
-	letter-spacing: 0.05em;
-	padding: 0.2em 0;
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  padding: 0.2em 0;
 }
