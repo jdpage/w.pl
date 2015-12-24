@@ -123,12 +123,14 @@ blockquote {
 /* font, color, and spacing choices */
 
 body {
-  font-family: 'Ubuntu', sans-serif;
+  /*font-family: 'Ubuntu', sans-serif;*/
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica', 'Arial', sans-serif;
   color: #333;
 }
 
 pre, code {
-  font-family: 'Ubuntu Mono', 'Courier New', monospace;
+  /*font-family: 'Ubuntu Mono', 'Courier New', monospace;*/
+  font-family: 'Andale Mono', 'Courier New', monospace;
 }
 
 pre {
@@ -176,7 +178,8 @@ a.broken::after {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Volkhov', serif;
+  /*font-family: 'Volkhov', serif;*/
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
   font-weight: bold;
   letter-spacing: 0.07em;
   margin: 0.8em 0;
