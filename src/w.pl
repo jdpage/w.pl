@@ -59,6 +59,18 @@ sub show_entry {
     my ($slug) = @_;
     
     my $on = $r->q->param('on');
+    my $realslug = $db->get_title($slug);
+    if ($realslug ne $slug) {
+
+        my $url = $conf{SITE_ROOT} . "/w/" . $realslug . ".html";
+        if (defined $on and $on ne "") {
+            $url .= "?on=$on";
+        }
+
+        print $r->q->redirect($url);
+        return;
+    }
+
     if (my $page = $db->get_entry($slug, $on)) {
         my $template = HTML::Template->new(
             filename => 'templates/entry.html',
@@ -122,7 +134,23 @@ if (/^_([^\s.]*)$/) {
         $r->four_oh_four("Unknown mode '$2'");
     }
 } elsif ($_ =~ TITLE_PATTERN) {
-    print $r->q->redirect("$_.html");
+
+    my $on = $r->q->param('on');
+    my $url = "$_.html";
+    if (defined $on and $on ne "") {
+        $url .= "?on=$on";
+    }
+    print $r->q->redirect($url);
+
+} elsif (/^(\d+)$/) {
+
+    my $on = $r->q->param('on');
+    my $url = "$_.html";
+    if (defined $on and $on ne "") {
+        $url .= "?on=$on";
+    }
+    print $r->q->redirect($url);
+
 } else {
     $r->four_oh_four("Unknown page '$_'");
 }
