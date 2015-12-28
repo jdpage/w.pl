@@ -1,6 +1,8 @@
 /* font size scale modified from: http://typecast.com/images/uploads/modernscale.css */
 /* originally made by Jason Pamental */
 
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz&subset=latin,latin-ext);
+
 body, caption, th, td, input, textarea, select, option, legend, fieldset, h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
 }
@@ -123,8 +125,7 @@ blockquote {
 /* font, color, and spacing choices */
 
 body {
-  /*font-family: 'Ubuntu', sans-serif;*/
-  font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica', 'Arial', sans-serif;
+  font-family: "Hoefler Text", "Baskerville", "Baskerville Old Face", "Garamond", "Times New Roman", serif;
   color: #333;
 }
 
@@ -188,10 +189,9 @@ a.doi::after {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  /*font-family: 'Volkhov', serif;*/
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
-  font-weight: bold;
-  letter-spacing: 0.07em;
+  /* font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica', 'Arial', sans-serif; */
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: normal;
   margin: 0.8em 0;
   position: relative;
 }
@@ -210,7 +210,6 @@ p,
 blockquote,
 pre {
   font-weight: normal;
-  letter-spacing: 0.05em;
   padding: 0.4em 0;
 }
 
@@ -225,11 +224,16 @@ article p code {
 }
 
 strong {
-  font-weight: 500;
+  font-weight: bold;
 }
 
 em {
   font-style: italic;
+}
+
+abbr, span.numeral {
+  font-variant: small-caps;
+  text-transform: lowercase;
 }
 
 blockquote, pre {
@@ -260,6 +264,5 @@ ol {
 
 li {
   font-weight: normal;
-  letter-spacing: 0.05em;
   padding: 0.2em 0;
 }
