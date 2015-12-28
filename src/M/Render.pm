@@ -179,9 +179,9 @@ sub render_inlines {
     $block =~ s/\.{3}/&#8230;/g;
 
     # TM, C, R
-    $block =~ s/(^|\s)\(TM\)(\s|$)/\1&#8482;\2/gi;
-    $block =~ s/(^|\s)\(C\)(\s|$)/\1&#169;\2/gi;
-    $block =~ s/(^|\s)\(R\)(\s|$)/\1&#174;\2/gi;
+    $block =~ s/(^|\s)\(TM\)(\s|$)/$1&#8482;$2/gi;
+    $block =~ s/(^|\s)\(C\)(\s|$)/$1&#169;$2/gi;
+    $block =~ s/(^|\s)\(R\)(\s|$)/$1&#174;$2/gi;
 
     # images
     $block =~ s/\{\{(.+?)\|(.+?)\}\}/<img src="$1" title="$2" alt="$2" \/>/g;
