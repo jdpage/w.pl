@@ -319,7 +319,7 @@ sub render_username {
 
 sub render_time {
     my ($self, $timestamp) = @_;
-    return time2str("%A the %o, %Om %Y, at %X %Z",
+    return time2str("%A the %o, <span class='numeral'>%Om</span> %Y, at %X <abbr>%Z</abbr>",
         $timestamp, $self->{timezone});
 }
 
