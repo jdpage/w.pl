@@ -1,3 +1,8 @@
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
 }
@@ -83,3 +88,101 @@ header h1 {
 header nav {
   display: none;
 }
+
+/*
+ * styling for /e/ pages
+ */
+
+body.edit {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+body.edit article {
+  margin: 1rem 0;
+  flex-grow: 1;
+}
+
+body.edit form {
+  width: 100vw;
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+}
+
+body.edit form * {
+  text-indent: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.edit form div {
+  padding: 0 2em;
+}
+
+body.edit form div:nth-of-type(1) {
+  display: flex;
+  flex-flow: row;
+}
+
+body.edit form div:nth-of-type(1) p {
+  flex-grow: 1;
+}
+
+body.edit form div:nth-of-type(1) span {
+  display: block;
+  color: #666;
+  font-size: 60%;
+  font-style: italic;
+  float: right;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+body.edit form div:nth-of-type(2) {
+  flex-grow: 1;
+}
+
+body.edit form div:nth-of-type(3) {
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+body.edit form label {
+  display: block;
+  font-size: 150%;
+  font-weight: bold;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+}
+
+body.edit form input[type='text'] {
+  display: block;
+  width: 95%;
+  padding: 0.5em 0.25em;
+  font-family: inherit;
+}
+
+body.edit form label[for='username'],
+body.edit form input[name='username'] {
+  margin-left: 5%;
+}
+
+body.edit form textarea {
+  width: 100%;
+  height: 100%;
+  padding: 0.5em 0.25em;
+  font-family: inherit;
+}
+
+body.edit form input[type='submit'],
+body.edit form input[type='reset'] {
+  font-size: 150%;
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  padding: 0.25em 0.5em;
+  float: right;
+  margin-left: 0.25em;
+  width: 4em;
+}
+
