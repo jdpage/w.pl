@@ -59,19 +59,19 @@ sub show_entry {
     my ($slug) = @_;
     
     my $on = $r->q->param('on');
-    my $realslug = $db->get_title($slug);
-    if ($realslug ne $slug) {
+    if (my $page = $db->get_entry($slug, $on)) {
 
-        my $url = $conf{SITE_ROOT} . "/w/" . $realslug . ".html";
-        if (defined $on and $on ne "") {
-            $url .= "?on=$on";
+        if ($page->{title} ne $slug) {
+            # if the title is different from the slug, redirect and try again
+            my $url = $conf{SITE_ROOT} . "/w/" . $page->{title} . ".html";
+            if (defined $on and $on ne "") {
+                $url .= "?on=$on";
+            }
+
+            print $r->q->redirect($url);
+            return;
         }
 
-        print $r->q->redirect($url);
-        return;
-    }
-
-    if (my $page = $db->get_entry($slug, $on)) {
         my $template = HTML::Template->new(
             filename => 'templates/entry.html',
             die_on_bad_params => 0);
@@ -83,10 +83,13 @@ sub show_entry {
         $template->param(ID => $page->{pageid});
         $r->show_page("200 OK", $page->{title}, $template->output);
     } elsif ($slug =~ /^\d+$/) {
+        # digit identifiers just 404
         $r->four_oh_four("Invalid permalink '$slug'.");
     } elsif ($slug !~ TITLE_PATTERN) {
+        # so do invalid titles
         $r->four_oh_four("Invalid entry name '$slug'.");
     } else {
+        # it's a valid page that doesn't exist yet, so go to edit
         print $r->q->redirect($conf{SITE_ROOT} . "/e/" . $slug);
     }
 }
