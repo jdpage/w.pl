@@ -32,6 +32,12 @@ my $r = M::Render->new(
     timezone => $conf{TIMEZONE});
 
 my $slug = substr($r->q->path_info(), 1);
+if ($slug !~ TITLE_PATTERN) {
+    # this page can't actually get created
+    print $r->four_oh_four("Invalid entry name '$slug'.");
+    exit;
+}
+
 my $title = $slug;
 my $content = '';
 my $username = $r->q->cookie('username');
