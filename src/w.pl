@@ -139,7 +139,7 @@ if (/^_([^\s.]*)$/) {
 } elsif ($_ =~ TITLE_PATTERN) {
 
     my $on = $r->q->param('on');
-    my $url = "$_.html";
+    my $url = $conf{SITE_ROOT} . "/w/$_.html";
     if (defined $on and $on ne "") {
         $url .= "?on=$on";
     }
@@ -148,7 +148,7 @@ if (/^_([^\s.]*)$/) {
 } elsif (/^(\d+)$/) {
 
     my $on = $r->q->param('on');
-    my $url = "$_.html";
+    my $url = $conf{SITE_ROOT} . "/w/$_.html";
     if (defined $on and $on ne "") {
         $url .= "?on=$on";
     }
