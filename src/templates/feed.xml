@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id><TMPL_VAR NAME=SITE_ROOT />/f/<TMPL_VAR NAME=ID />.xml"</id>
+    <id><TMPL_VAR NAME=SITE_ROOT />/f/<TMPL_VAR NAME=ID />.xml</id>
     <title>Recent activity on <TMPL_VAR NAME=TITLE /></title>
     <link rel="self" href="<TMPL_VAR NAME=SITE_ROOT />/f/<TMPL_VAR NAME=TITLE />.xml" />
     <link rel="alternate" href="<TMPL_VAR NAME=SITE_ROOT />/f/<TMPL_VAR NAME=TITLE />.html" />
@@ -10,13 +10,16 @@
     <entry>
         <id><TMPL_VAR NAME=SITE_ROOT />/w/<TMPL_VAR NAME=ID />.html?on=<TMPL_VAR NAME=EDITED /></id>
         <title type="text"><TMPL_VAR NAME=TITLE /> edited by <TMPL_VAR NAME=EDITOR_NAME /></title>
-        <title type="html"><TMPL_VAR NAME=TITLE /> edited by <TMPL_VAR NAME=USER_LINK ESCAPE=HTML /></title>
         <updated><TMPL_VAR NAME=ISO_TIME /></updated>
         <author>
             <name><TMPL_VAR NAME=EDITOR_NAME /></name>
             <uri><TMPL_VAR NAME=SITE_ROOT />/w/User/<TMPL_VAR NAME=EDITOR_NAME />.html</uri>
         </author>
         <link rel="alternate" href="<TMPL_VAR NAME=SITE_ROOT />/w/<TMPL_VAR NAME=TITLE />.html?on=<TMPL_VAR NAME=EDITED />" />
+        <summary type="html">
+            &lt;a href=&quot;<TMPL_VAR NAME=SITE_ROOT />/w/<TMPL_VAR NAME=TITLE />.html&quot;&gt;<TMPL_VAR NAME=TITLE />&lt;/a&gt;
+            edited by <TMPL_VAR NAME=USER_LINK ESCAPE=HTML />
+        </summary>
     </entry>
     </TMPL_LOOP>
 </feed>
