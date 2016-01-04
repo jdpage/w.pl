@@ -317,6 +317,18 @@ sub generate_partial {
     return $header;
 }
 
+sub name_of_editor {
+    my ($self, $editor) = @_;
+    if ($editor =~ /^([^@]*)@([^@]*)$/) {
+        if ($1 =~ /^([^!]*)!([^!]*)$/) {
+            return $1;
+        } else {
+            return $1;
+        }
+    }
+    return $editor;
+}
+
 sub render_username {
     my ($self, $editor) = @_;
     if ($editor =~ /^([^@]*)@([^@]*)$/) {
@@ -367,6 +379,11 @@ sub render_time {
         $timestamp, $self->{timezone});
     my $short = $self->render_fuzzy_time($timestamp);
     return qq(<span title="$long">$short ago</span>);
+}
+
+sub render_isotime {
+    my ($self, $timestamp) = @_;
+    return time2str("%Y-%m-%dT%H:%M:%S%z", $timestamp, $self->{timezone});
 }
 
 
