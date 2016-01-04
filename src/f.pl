@@ -41,6 +41,8 @@ sub render_html_feed {
         die_on_bad_params => 0);
     $template->param(SITE_ROOT => $conf{SITE_ROOT});
     $template->param(EDITS => $edits);
+    $template->param(TITLE => $title);
+    $template->param(ID => $id);
     $r->show_page("200 OK", "Recent edits to $title", $template->output);
 }
 
@@ -68,8 +70,8 @@ if (/^([^\s.]*)\.([^\s\.]*)$/) {
 
     if ($1 eq "_all") {
 
-        $id = 0;
-        $title = "site";
+        $id = "_all";
+        $title = "_all";
         @edits = map { {
 
             ID => $_->{pageid},
@@ -100,7 +102,7 @@ if (/^([^\s.]*)\.([^\s\.]*)$/) {
             EDITOR_NAME => $r->name_of_editor($_->{editor}),
             USER_LINK => $r->render_username($_->{editor}),
 
-            EDITED => $r->{edited},
+            EDITED => $_->{edited},
             FORMATTED_TIME => $r->render_time($_->{edited}),
             ISO_TIME => $r->render_isotime($_->{edited}),
 
