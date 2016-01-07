@@ -10,6 +10,8 @@ use M::Const;
 
 use CGI;
 use Date::Format;
+use DateTime;
+use DateTime::Format::RFC3339;
 use Digest::MD5 qw(md5_hex);
 use HTML::Template;
 use List::MoreUtils qw(uniq);
@@ -31,6 +33,7 @@ sub new {
         db => $args{database},
         site_root => $args{site_root},
         timezone => $args{timezone},
+        rfc3339formatter => DateTime::Format::RFC3339->new(),
     }, $class);
 }
 
@@ -383,9 +386,9 @@ sub render_time {
 
 sub render_isotime {
     my ($self, $timestamp) = @_;
-    return time2str("%Y-%m-%dT%H:%M:%S%z", $timestamp, $self->{timezone});
+    my $dt = DateTime->from_epoch( epoch => $timestamp, time_zone => $self->{timezone} );
+    return $self->{rfc3339formatter}->format_datetime($dt);
 }
-
 
 sub render_entry {
     my ($self, $content) = @_;

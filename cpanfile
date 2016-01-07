@@ -1,6 +1,8 @@
 requires 'CGI';
 requires 'Data::Dump';
 requires 'Date::Format';
+requires 'DateTime';
+requires 'DateTime::Format::RFC3339';
 requires 'DBI';
 requires 'DBD::SQLite';
 requires 'Digest::MD5';
