@@ -80,6 +80,7 @@ sub show_entry {
         $template->param(CONTENT => $r->render_entry($page->{content}));
         $template->param(USERLINK => $r->render_username($page->{editor}));
         $template->param(EDITED => $r->render_time($page->{edited}));
+        $template->param(EDITED_TS => $page->{edited});
         $template->param(ID => $page->{pageid});
         $r->show_page("200 OK", $page->{title}, $template->output);
     } elsif ($slug =~ /^\d+$/) {
