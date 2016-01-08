@@ -48,6 +48,7 @@ sub ref_list {
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
         $template->param(LINKS => \@links);
         $r->show_page("200 OK", "Links to $title", $template->output);
     } else {
