@@ -78,6 +78,7 @@ sub show_entry {
             die_on_bad_params => 0);
         $template->param(TITLE => $page->{title});
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
         $template->param(CONTENT => $r->render_entry($page->{content}));
         $template->param(USERLINK => $r->render_username($page->{editor}));
         $template->param(EDITED => $r->render_time($page->{edited}));

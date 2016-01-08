@@ -121,6 +121,7 @@ my $template = HTML::Template->new(
 
 $template->param(ID => $id);
 $template->param(SITE_ROOT => $conf{SITE_ROOT});
+$template->param(LANGUAGE => $conf{LANGUAGE});
 $template->param(SLUG => $slug);
 $template->param(ERRORS => \@errors);
 $template->param(TITLE => $title);
