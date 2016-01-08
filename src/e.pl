@@ -29,6 +29,7 @@ my $db = M::DB->new($conf{DATABASE});
 my $r = M::Render->new(
     database => $db,
     site_root => $conf{SITE_ROOT},
+    language => $conf{LANGUAGE},
     timezone => $conf{TIMEZONE});
 
 my $slug = substr($r->q->path_info(), 1);
