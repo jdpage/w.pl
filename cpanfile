@@ -1,4 +1,4 @@
-requires 'App::prove';
+requires 'App::Prove';
 requires 'CGI';
 requires 'Data::Dump';
 requires 'Date::Format';
