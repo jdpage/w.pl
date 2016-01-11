@@ -1,13 +1,15 @@
-.PHONY: all test deploy
+.PHONY: all test deploy setup
 
 DEPLOY_DIR=~/Sites/books
 
 all:
 	cd src; find . -iname '*.p?' -exec perl -MVi::QuickFix -Tc {} \;
 
-test:
-	cd src; find . -iname '*.p?' -exec perl -Tc {} \;
+test: all
+	prove -Isrc -T
 
+setup:
+	cpanm --quiet --installdeps --notest .
 
 deploy:
 	cd src; cp -f _htaccess .htaccess 
