@@ -1,4 +1,4 @@
-package M::Format::TimeAgo;
+package V::Format::TimeAgo;
 
 use 5.018;
 use strict;

@@ -7,7 +7,7 @@ use diagnostics;
 
 use Test::More tests => 23;
 
-use M::Format::TimeAgo qw(format_unit format_time_ago);
+use V::Format::TimeAgo qw(format_unit format_time_ago);
 
 
 is(format_unit(0, "cat", "cats"), "0 cats");

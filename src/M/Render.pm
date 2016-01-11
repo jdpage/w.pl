@@ -7,7 +7,7 @@ use diagnostics;
 use lib '.';
 
 use M::Const;
-use M::Format::TimeAgo;
+use V::Format::TimeAgo;
 
 use CGI;
 use Date::Format;
