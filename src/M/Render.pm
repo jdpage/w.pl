@@ -7,6 +7,7 @@ use diagnostics;
 use lib '.';
 
 use M::Const;
+use M::Format::TimeAgo;
 
 use CGI;
 use Date::Format;
@@ -16,14 +17,6 @@ use Digest::MD5 qw(md5_hex);
 use HTML::Template;
 use List::MoreUtils qw(uniq);
 use Scalar::Util 'blessed';
-
-use constant PER_SECOND => 1;
-use constant PER_MINUTE => 60 * PER_SECOND;
-use constant PER_HOUR => 60 * PER_MINUTE;
-use constant PER_DAY => 24 * PER_HOUR;
-use constant PER_WEEK => 7 * PER_DAY;
-use constant PER_MONTH => 30 * PER_DAY;
-use constant PER_YEAR => 365 * PER_DAY;
 
 sub new {
     my ($class, %args) = @_;
@@ -340,47 +333,11 @@ sub render_username {
     return $self->render_link($editor);
 }
 
-sub pick {
-    my ($self, $value, $singular, $plural) = @_;
-    if ($value == 1) {
-        return $singular;
-    } else {
-        return $plural;
-    }
-}
-
-sub render_fuzzy_time {
-    my ($self, $timestamp) = @_;
-    my $interval = time - $timestamp;
-    if ($interval < PER_MINUTE) {
-        my $seconds = $interval / PER_SECOND;
-        return $seconds . " " . $self->pick($seconds, "second", "seconds");
-    } elsif ($interval < PER_HOUR) {
-        my $minutes = int $interval / PER_MINUTE;
-        return $minutes . " " . $self->pick($minutes, "minute", "minutes");
-    } elsif ($interval < PER_DAY) {
-        my $hours = int $interval / PER_HOUR;
-        return $hours . " " . $self->pick($hours, "hour", "hours");
-    } elsif ($interval < PER_WEEK) {
-        my $days = int $interval / PER_DAY;
-        return $days . " " . $self->pick($days, "day", "days");
-    } elsif ($interval < PER_MONTH) {
-        my $weeks = int $interval / PER_WEEK;
-        return $weeks . " " . $self->pick($weeks, "week", "weeks");
-    } elsif ($interval < PER_YEAR) {
-        my $months = int $interval / PER_MONTH;
-        return $months . " " . $self->pick($months, "month", "months");
-    } else {
-        my $years = int $interval / PER_YEAR;
-        return $years . " " . $self->pick($years, "year", "years");
-    }
-}
-
 sub render_time {
     my ($self, $timestamp) = @_;
     my $long = time2str("on %A the %o, %Om %Y, at %X %Z",
         $timestamp, $self->{timezone});
-    my $short = $self->render_fuzzy_time($timestamp);
+    my $short = format_time_ago($timestamp);
     return qq(<span title="$long">$short ago</span>);
 }
 
