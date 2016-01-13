@@ -108,6 +108,7 @@ if ($r->q->request_method eq 'POST') {
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
 
         print $r->q->header("text/html; charset=utf-8", "200 OK"
             -cookie => $cookie);
