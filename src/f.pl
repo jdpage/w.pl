@@ -28,6 +28,7 @@ my $db = M::DB->new($conf{DATABASE});
 my $r = M::Render->new(
     database => $db,
     site_root => $conf{SITE_ROOT},
+    language => $conf{LANGUAGE},
     timezone => $conf{TIMEZONE});
 
 
@@ -40,6 +41,7 @@ sub render_html_feed {
         filename => 'templates/recent.html',
         die_on_bad_params => 0);
     $template->param(SITE_ROOT => $conf{SITE_ROOT});
+    $template->param(LANGUAGE => $conf{LANGUAGE});
     $template->param(EDITS => $edits);
     $template->param(TITLE => $title);
     $template->param(ID => $id);
@@ -54,6 +56,7 @@ sub render_atom_feed {
         filename => 'templates/feed.xml',
         die_on_bad_params => 0);
     $template->param(SITE_ROOT => $conf{SITE_ROOT});
+    $template->param(LANGUAGE => $conf{LANGUAGE});
     $template->param(EDITS => $edits);
     $template->param(TITLE => $title);
     $template->param(ID => $id);

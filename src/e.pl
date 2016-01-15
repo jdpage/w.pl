@@ -29,6 +29,7 @@ my $db = M::DB->new($conf{DATABASE});
 my $r = M::Render->new(
     database => $db,
     site_root => $conf{SITE_ROOT},
+    language => $conf{LANGUAGE},
     timezone => $conf{TIMEZONE});
 
 my $slug = substr($r->q->path_info(), 1);
@@ -107,6 +108,7 @@ if ($r->q->request_method eq 'POST') {
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
 
         print $r->q->header("text/html; charset=utf-8", "200 OK"
             -cookie => $cookie);
@@ -121,6 +123,7 @@ my $template = HTML::Template->new(
 
 $template->param(ID => $id);
 $template->param(SITE_ROOT => $conf{SITE_ROOT});
+$template->param(LANGUAGE => $conf{LANGUAGE});
 $template->param(SLUG => $slug);
 $template->param(ERRORS => \@errors);
 $template->param(TITLE => $title);

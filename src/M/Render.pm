@@ -25,6 +25,7 @@ sub new {
         q => $q,
         db => $args{database},
         site_root => $args{site_root},
+        language => $args{language},
         timezone => $args{timezone},
         rfc3339formatter => DateTime::Format::RFC3339->new(),
     }, $class);
@@ -45,6 +46,7 @@ sub show_page {
         die_on_bad_params => 0);
     $template->param(TITLE => $title);
     $template->param(SITE_ROOT => $self->{site_root});
+    $template->param(LANGAUGE => $self->{language});
     $template->param(BODY => $body);
     print $self->q->header("text/html; charset=utf-8", $status);
     print $template->output;
@@ -56,6 +58,7 @@ sub four_oh_four {
         filename => 'templates/404.html',
         die_on_bad_params => 0);
     $template->param(SITE_ROOT => $self->{site_root});
+    $template->param(LANGUAGE => $self->{language});
     $template->param(MESSAGE => $message);
     $self->show_page("404 Not Found", "Not found", $template->output);
 }

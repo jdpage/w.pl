@@ -29,6 +29,7 @@ my $db = M::DB->new($conf{DATABASE});
 my $r = M::Render->new(
     database => $db,
     site_root => $conf{SITE_ROOT},
+    language => $conf{LANGUAGE},
     timezone => $conf{TIMEZONE});
 
 
@@ -48,6 +49,7 @@ sub ref_list {
             die_on_bad_params => 0);
         $template->param(TITLE => $title);
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
         $template->param(LINKS => \@links);
         $r->show_page("200 OK", "Links to $title", $template->output);
     } else {
@@ -77,6 +79,7 @@ sub show_entry {
             die_on_bad_params => 0);
         $template->param(TITLE => $page->{title});
         $template->param(SITE_ROOT => $conf{SITE_ROOT});
+        $template->param(LANGUAGE => $conf{LANGUAGE});
         $template->param(CONTENT => $r->render_entry($page->{content}));
         $template->param(USERLINK => $r->render_username($page->{editor}));
         $template->param(EDITED => $r->render_time($page->{edited}));
