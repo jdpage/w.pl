@@ -32,6 +32,18 @@ my $r = M::Render->new(
     language => $conf{LANGUAGE},
     timezone => $conf{TIMEZONE});
 
+# check the edit blacklist
+if ($conf{BLACKLIST} and open(my $h, '<:encoding(UTF-8)', $conf{BLACKLIST})) {
+    my %blacklist = map { chomp($_); $_ => 1 } <$h>;
+    close $h;
+
+    if (exists($blacklist{$r->q->remote_addr})) {
+        $r->four_oh_three(
+            "Your IP address has been blocked from editing.");
+        exit;
+    }
+}
+
 my $slug = substr($r->q->path_info(), 1);
 if ($slug !~ TITLE_PATTERN) {
     # this page can't actually get created

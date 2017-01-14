@@ -63,6 +63,17 @@ sub four_oh_four {
     $self->show_page("404 Not Found", "Not found", $template->output);
 }
 
+sub four_oh_three {
+    my ($self, $message) = @_;
+    my $template = HTML::Template->new(
+        filename => 'templates/403.html',
+        die_on_bad_params => 0);
+    $template->param(SITE_ROOT => $self->{site_root});
+    $template->param(LANGUAGE => $self->{language});
+    $template->param(MESSAGE => $message);
+    $self->show_page("403 Forbidden", "Forbidden", $template->output);
+}
+
 
 ### markup rendering ###
 
