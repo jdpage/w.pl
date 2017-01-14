@@ -47,7 +47,7 @@ if ($conf{BLACKLIST} and open(my $h, '<:encoding(UTF-8)', $conf{BLACKLIST})) {
 my $slug = substr($r->q->path_info(), 1);
 if ($slug !~ TITLE_PATTERN) {
     # this page can't actually get created
-    print $r->four_oh_four("Invalid entry name '$slug'.");
+    $r->four_oh_four("Invalid entry name '$slug'.");
     exit;
 }
 
